@@ -1,6 +1,6 @@
 bl_info = {
     "name": "BPYtester",
-    "description": "Tester",
+    "description": "Unit Test for Blender Addons",
     "author": "Rodrigo Gama",
     "version": (0, 1, 0),
     "blender": (3, 5, 0),
