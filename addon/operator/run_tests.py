@@ -117,7 +117,7 @@ class TestProcess:
 
         process = subprocess.Popen(self.cmd, 
                                    universal_newlines=True,
-                                   shell=True, 
+                                   shell=False, 
                                    stdout=subprocess.PIPE, 
                                    stderr=subprocess.STDOUT
                                    )
