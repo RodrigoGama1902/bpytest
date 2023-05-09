@@ -12,24 +12,25 @@ for arg in sys.argv:
     if arg.startswith("function_name:"):
         function_name = arg[14:]
 
-sys.path.append(pythonpath.__str__())
+def main():
 
-print("filepath: " + filepath.__str__())
-print("pythonpath: " + pythonpath.__str__())
-print("function_name: " + function_name)
+    sys.path.append(pythonpath.__str__())
 
-spec = importlib.util.spec_from_file_location(filepath.stem,filepath)  
-test_file = importlib.util.module_from_spec(spec) # type:ignore
-spec.loader.exec_module(test_file) # type:ignore
-    
-obj = getattr(test_file, function_name)
-failed = False
+    print("filepath: " + filepath.__str__())
+    print("pythonpath: " + pythonpath.__str__())
+    print("function_name: " + function_name)
 
-if hasattr(obj, "__call__"):
-    
-    try:
-        obj()
-    except Exception:
-        failed = True
-        traceback.print_exc()
-        sys.exit(1)
+    spec = importlib.util.spec_from_file_location(filepath.stem,filepath)  
+    test_file = importlib.util.module_from_spec(spec) # type:ignore
+    spec.loader.exec_module(test_file) # type:ignore
+        
+    obj = getattr(test_file, function_name)
+
+    if hasattr(obj, "__call__"): 
+        obj()       
+
+try:
+    main()
+except Exception:
+    traceback.print_exc()
+    sys.exit(1)
