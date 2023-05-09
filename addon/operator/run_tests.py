@@ -15,25 +15,33 @@ class TestFile:
 
         self.filepath = filepath
         self.selected_functions = self.load_selected_functions(selected_functions)
+
+    def parse_test_function_names(self):
+
+        functions = []
+
+        with open(self.filepath, "r") as file:
+            lines = file.readlines()
+            for line in lines:
+                if not "def test_" in line:
+                    continue
+                function_name = line.split("def ")[1].split("(")[0]
+                functions.append(function_name)
         
+        return functions
+    
     def load_selected_functions(self, selected_functions):
 
         functions = []
 
-        import importlib.util
+        test_function_names = self.parse_test_function_names()
 
-        spec = importlib.util.spec_from_file_location(self.filepath.stem,self.filepath)  
-        test_file = importlib.util.module_from_spec(spec) # type:ignore
-        spec.loader.exec_module(test_file) # type:ignore
-
-        for name in dir(test_file):
-            if not "test_" in name:
-                continue
+        for function_name in test_function_names:
             if not selected_functions:
-                functions.append(name)
+                functions.append(function_name)
                 continue
-            if name in selected_functions:
-                functions.append(name)
+            if function_name in selected_functions:
+                functions.append(function_name)
                 continue
         
         return functions
