@@ -216,7 +216,7 @@ class BPYTEST_OT_Tests(bpy.types.Operator):
         self.pythonpath = Path(self.source_directory, config_file.pythonpath).absolute()
         test_path = Path(self.pythonpath, config_file.test_directory_path).absolute()
 
-        sys.path.append(test_path)
+        sys.path.append(str(test_path))
 
         if not test_path.exists():
             self.report({'ERROR'}, "Test path not found: " + test_path.__str__())

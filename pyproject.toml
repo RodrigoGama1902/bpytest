@@ -1,0 +1,12 @@
+[tool.pyright]
+
+reportMissingImports = "Warning"
+reportMissingTypeStubs = true
+reportGeneralTypeIssues = true
+reportOptionalMemberAccess = true
+reportOptionalSubscript = true
+
+pythonVersion = "3.11"
+pythonPlatform = "Windows"
+
+
