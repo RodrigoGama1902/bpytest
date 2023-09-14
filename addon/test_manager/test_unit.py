@@ -9,9 +9,11 @@ class TestUnit:
     function_name : str
     success : bool
 
-    result_lines : list[str] = []
+    result_lines : list[str]
 
     def __init__(self, test_file : TestFile, function_name : str):
+        
+        self.result_lines = []
         self.test_file = test_file
         self.function_name = function_name
         self.success = False

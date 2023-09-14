@@ -34,10 +34,12 @@ def main():
     enable_module_list(module_list)
 
     if hasattr(obj, "__call__"): 
-        obj()   
+        return obj()
 
 try:
-    main()
+    result = main()
+    if not result:
+        raise Exception("Test failed, returned False")
 except:
     print(traceback.print_exc())
     sys.exit(1)
