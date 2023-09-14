@@ -14,8 +14,8 @@ test_search_relative_path=""
 test_mode="runtime"
 selected_functions=[]
 pythonpath=""
-show_log=false
-toggle_console=false
+display_output=true
+toggle_console=true
 raise_error=false
 
 

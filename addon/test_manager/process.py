@@ -10,16 +10,20 @@ from abc import ABC, abstractmethod
 
 from . import TestUnit
 
-class PrintCapture:
-    def __init__(self, enable_console : bool):
-        self._enable_console = enable_console
+class OutputHandler:
+    def __init__(self, display_output : bool):
+        
+        self._display_output = display_output
         self.messages = []
 
     def write(self, message):
-        
-        message = message.rstrip().replace("\r", "").replace("\n", "")
+        if not message:
+            return
+        if message == "\n":
+            return
+        message = message.rstrip()
 
-        if self._enable_console:
+        if self._display_output: # Allows to display lines without causing a recursion
             print(message, file=sys.__stdout__)
 
         self.messages.append(message)
@@ -27,26 +31,57 @@ class PrintCapture:
     def flush(self):
         pass
 
-class TestProcess(ABC):
+def start_output_handler(output_handler : OutputHandler):
+    '''Blocks the print function'''
+    sys.stdout = output_handler
 
-    def __init__(self, test_unit : TestUnit, pythonpath : Path, show_log : bool):
+def stop_output_handler():
+    '''Enables the print function'''
+    sys.stdout = sys.__stdout__
+
+def overwrite_standard_output(func):
+    '''Decorator that overwrites the print function from the sys.__stdout__ to a custom print function'''
+    def wrapper(self : TestProcess, *args, **kwargs):
+
+        start_output_handler(self._output_handler)
+        result = func(self, *args, **kwargs)
+        stop_output_handler()
+
+        self._test_unit.result_lines = self._output_handler.messages
+        return result
+
+    return wrapper
+
+class TestProcess(ABC):
+    '''Abstract class that defines the test process execution. The execution
+    consists in running the test in a subprocess or in the current blender process.
+
+    In the execution of the test, the correct test function is called and the result is 
+    returned as a boolean.
+    
+    :param test_unit: Test unit to be executed
+    :param pythonpath: Path python cwd
+    :param display_output: Defines if should display the test standard output
+
+    '''
+
+    def __init__(self, test_unit : TestUnit, pythonpath : Path, display_output : bool):
 
         self._test_unit = test_unit
-        self._show_log = show_log
+        self._display_output = display_output
         self._pythonpath = pythonpath
 
-    @property
-    def test_unit(self) -> TestUnit:
-        return self._test_unit
+        self._output_handler = OutputHandler(display_output = self._display_output)
     
     @abstractmethod
-    def execute(self):
+    def execute(self) -> bool:
         ...
 
 class BackgroundTest(TestProcess):
-    '''Runs the test in a subprocess'''
+    '''Runs the test in a subprocess in a different blender process'''
 
-    def execute(self):
+    @overwrite_standard_output
+    def execute(self) -> bool:
 
         generator_filepath = Path(__file__).parent.parent / "generators" /  "background_test_process.py"
 
@@ -60,45 +95,27 @@ class BackgroundTest(TestProcess):
             "function_name:" + self._test_unit.function_name
         ]
 
-        process = subprocess.Popen(cmd, 
-                                   universal_newlines=True,
-                                   shell=False, 
-                                   stdout=subprocess.PIPE, 
-                                   stderr=subprocess.STDOUT
-                                   )
+        result = subprocess.run(
+                cmd, 
+                check = False, 
+                stdout= open(os.devnull, 'w') if not self._display_output else None, 
+                stderr= subprocess.PIPE
+                )
         
-        for line in iter(process.stdout.readline,''): # type: ignore
-            if self._show_log:
-                print(line.rstrip())
-
-            self.test_unit.log_lines.append(line.rstrip())
-
-        return_code = process.wait()
-
-        if return_code != 0:
-            self.test_unit.success = False
-        if return_code == 0:    
-            self.test_unit.success = True
+        if result.returncode != 0:
+            self._output_handler.messages.append("Error: " + result.stderr.decode("utf-8"))
+            return False
+        
+        return True
 
 class RuntimeTest(TestProcess):
     '''Runs the test in the current blender process'''
 
-    def _start_print_handle(self):
-        '''Blocks the print function'''
-        sys.stdout = self._printer
-
-    @staticmethod
-    def _stop_print_handle():
-        '''Enables the print function'''
-        sys.stdout = sys.__stdout__
-
+    @overwrite_standard_output
     def execute(self):
-
-        self._printer = PrintCapture(enable_console = self._show_log)
 
         module_filepath = self._test_unit.test_file.filepath
 
-        import sys
         sys.path.append(str(self._pythonpath))
 
         spec = importlib.util.spec_from_file_location(module_filepath.stem, module_filepath)  
@@ -107,22 +124,13 @@ class RuntimeTest(TestProcess):
             
         obj = getattr(test_file, self._test_unit.function_name)
 
-        self._start_print_handle()
-
         if hasattr(obj, "__call__"): 
             try:
                 obj() 
             except:
-                traceback.print_exc(file = self._printer)
-                self._stop_print_handle()
-
-                self.test_unit.success = False
-                self.test_unit.log_lines = self._printer.messages
-                return
-        
-        self._stop_print_handle()
-        
-        self.test_unit.log_lines = self._printer.messages
-        self.test_unit.success = True
+                traceback.print_exc(file = self._output_handler)
+                return False
+           
+        return True
 
 

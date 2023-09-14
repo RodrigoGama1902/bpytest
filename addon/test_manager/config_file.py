@@ -12,7 +12,7 @@ class ConfigFile:
     '''Reads pyproject.toml file
     
     :param pythonpath: Path python cwd
-    :param show_log: Show test log
+    :param display_output: Show test log
     :param selected_functions: List of selected functions to test functions to run
     :param test_search_relative_path: Path to search for tests, relative to python cwd, if empty, search in python cwd
     :param toggle_console: Toggle console before and after running tests
@@ -24,7 +24,7 @@ class ConfigFile:
 
     pythonpath : Path 
     test_search_relative_path : Path
-    show_log : bool
+    display_output : bool
     selected_functions : list[Path]
     toggle_console : bool
     test_mode : TestMode
@@ -53,7 +53,7 @@ class ConfigFile:
         
         self.pythonpath = pyproject_toml.get("pythonpath")
         self.test_search_relative_path = pyproject_toml.get("test_search_relative_path", "")
-        self.show_log = pyproject_toml.get("show_log", False)
+        self.display_output = pyproject_toml.get("display_output", False)
         self.selected_functions = pyproject_toml.get("selected_functions", [])
         self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error",False)

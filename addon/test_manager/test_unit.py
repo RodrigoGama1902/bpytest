@@ -9,7 +9,7 @@ class TestUnit:
     function_name : str
     success : bool
 
-    log_lines : list[str] = []
+    result_lines : list[str] = []
 
     def __init__(self, test_file : TestFile, function_name : str):
         self.test_file = test_file
@@ -17,10 +17,7 @@ class TestUnit:
         self.success = False
     
     def print_log(self):
-        for line in self.log_lines:
-            if not line:
-                continue
-            
+        for line in self.result_lines:
             print(line)
     
     def __repr__(self) -> str:

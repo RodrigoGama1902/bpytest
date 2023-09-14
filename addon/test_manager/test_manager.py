@@ -96,10 +96,12 @@ class TestManager:
 
                 test_process = test_class(test_unit = test_unit, 
                                         pythonpath = self._pythonpath, 
-                                        show_log = self._config_file.show_log)
-                test_process.execute()
+                                        display_output = self._config_file.display_output)
+                
+                result = test_process.execute()
+                test_unit.success = result
 
-                print(test_process.test_unit)
+                print(test_unit)
                 self._finished_tests_list.append(test_unit)
         
         self._end_time()
