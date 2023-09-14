@@ -9,6 +9,7 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 
 from . import TestUnit
+from . import ConfigFile
 
 
 class TestProcess(ABC):
@@ -24,9 +25,11 @@ class TestProcess(ABC):
 
     '''
 
-    def __init__(self, test_unit : TestUnit, pythonpath : Path, display_output : bool):
+    def __init__(self, test_unit : TestUnit, pythonpath : Path, config_file : ConfigFile):
+
         self._test_unit = test_unit
-        self._display_output = display_output
+        self._config_file = config_file
+        self._display_output = config_file.display_output
         self._pythonpath = pythonpath
 
     def _block_standard_output(self):
@@ -52,7 +55,7 @@ class TestProcess(ABC):
     @abstractmethod
     def _execute(self) -> bool:
         '''Executes the test and returns the result'''
-        
+
 class BackgroundTest(TestProcess):
     '''Runs the test in a subprocess in a different blender process'''
 
@@ -67,7 +70,8 @@ class BackgroundTest(TestProcess):
             "--",
             "filepath:" + self._test_unit.test_file.filepath.__str__(),
             "pythonpath:" + self._pythonpath.__str__(),
-            "function_name:" + self._test_unit.function_name
+            "function_name:" + self._test_unit.function_name,
+            "module_list:" + self._config_file.module_list
         ]
 
         result = subprocess.run(

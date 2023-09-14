@@ -94,9 +94,10 @@ class TestManager:
                     case TestMode.RUNTIME:
                         test_class = RuntimeTest
 
-                test_process = test_class(test_unit = test_unit, 
+                test_process = test_class(
+                                        test_unit = test_unit, 
                                         pythonpath = self._pythonpath, 
-                                        display_output = self._config_file.display_output)
+                                        config_file= self._config_file)
                 
                 result = test_process.execute()
                 test_unit.success = result

@@ -1,4 +1,5 @@
 import sys
+import bpy
 import importlib.util
 import traceback
 
@@ -6,11 +7,19 @@ from pathlib import Path
 
 for arg in sys.argv:
     if arg.startswith("filepath:"):
-        filepath = Path(arg[9:])
+        filepath : Path = Path(arg[9:])
     if arg.startswith("pythonpath:"):
-        pythonpath = Path(arg[11:])
+        pythonpath : Path = Path(arg[11:])
     if arg.startswith("function_name:"):
-        function_name = arg[14:]
+        function_name : str = arg[14:]
+    if arg.startswith("module_list:"):
+        module_list : list = arg[12:].split(",")
+
+def enable_module_list(module_list : list): 
+
+    for module in module_list:
+        if module.strip() != "":
+            bpy.ops.preferences.addon_enable(module=module.strip())
 
 def main():
 
@@ -22,14 +31,15 @@ def main():
         
     obj = getattr(test_file, function_name)
 
+    enable_module_list(module_list)
+
     if hasattr(obj, "__call__"): 
-        try:
-            obj()   
-        except:
-            print(traceback.print_exc())
-            sys.exit(1)
-        
-        sys.exit(0)
+        obj()   
 
-main()
+try:
+    main()
+except:
+    print(traceback.print_exc())
+    sys.exit(1)
 
+sys.exit(0)

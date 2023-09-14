@@ -27,6 +27,7 @@ class ConfigFile:
     display_output : bool
     selected_functions : list[Path]
     toggle_console : bool
+    module_list : str 
     test_mode : TestMode
 
     def __init__(
@@ -57,4 +58,5 @@ class ConfigFile:
         self.selected_functions = pyproject_toml.get("selected_functions", [])
         self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error",False)
+        self.module_list = pyproject_toml.get("module_list", "")
         self.test_mode = TestMode(pyproject_toml.get("test_mode", "background"))
