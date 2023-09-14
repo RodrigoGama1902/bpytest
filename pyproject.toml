@@ -10,8 +10,8 @@ pythonVersion = "3.11"
 pythonPlatform = "Windows"
 
 [tool.bpytest]
-test_directory_path=""
-test_mode="background"
+test_search_relative_path=""
+test_mode="runtime"
 selected_functions=[]
 pythonpath=""
 show_log=false

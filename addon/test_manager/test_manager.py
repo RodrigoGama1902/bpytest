@@ -20,16 +20,19 @@ class TestManager:
 
     _total_time : float
 
-    def __init__(self, source_directory : Path):
+    def __init__(
+            self, source_directory : Path):
         
         self._source_directory = source_directory
         self._finished_tests_list = []
         self._config_file = ConfigFile(Path(self._source_directory))
-
         self._pythonpath = Path(self._source_directory, self._config_file.pythonpath).absolute()
+        self._test_search_directory = Path(self._source_directory, self._config_file.test_search_relative_path).absolute()
 
         if not self._source_directory:
             raise Exception("Source Directory not set")
+        if not self._test_search_directory.exists():
+            raise Exception("Test search directory not found: " + self._test_search_directory.__str__())
     
     @property
     def config_file(self) -> ConfigFile:
@@ -106,7 +109,7 @@ class TestManager:
 
         print_header("Test session starts")
         
-        collector = Collector(self._source_directory, self._config_file.selected_functions)
+        collector = Collector(self._test_search_directory, self._config_file.selected_functions)
         self._run_tests(collector)
 
         print_failed(self._finished_tests_list)
