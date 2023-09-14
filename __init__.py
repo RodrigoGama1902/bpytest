@@ -16,3 +16,7 @@ def register():
 def unregister():
     from .addon.register import unregister_addon
     unregister_addon()
+
+# TODO - Write better documentation
+# TODO - Try to fix the subprocess print order, maybe try using subprocess.run instead of popen
+# TODO - Store the error line

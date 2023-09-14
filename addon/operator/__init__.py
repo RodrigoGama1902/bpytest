@@ -1,6 +1,6 @@
+#type:ignore
 
-
-from .run_tests import BPYTEST_OT_Tests
+from .ot_run_tests import BPYTEST_OT_Tests
 
 
 classes = (

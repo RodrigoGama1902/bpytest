@@ -9,4 +9,13 @@ reportOptionalSubscript = true
 pythonVersion = "3.11"
 pythonPlatform = "Windows"
 
+[tool.bpytest]
+test_directory_path=""
+test_mode="background"
+selected_functions=[]
+pythonpath=""
+show_log=false
+toggle_console=false
+raise_error=false
+
 

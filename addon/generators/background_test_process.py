@@ -27,10 +27,13 @@ def main():
     obj = getattr(test_file, function_name)
 
     if hasattr(obj, "__call__"): 
-        obj()       
+        try:
+            obj()   
+        except:
+            print(traceback.print_exc())
+            sys.exit(1)
+        
+        sys.exit(0)
 
-try:
-    main()
-except Exception:
-    traceback.print_exc()
-    sys.exit(1)
+main()
+
