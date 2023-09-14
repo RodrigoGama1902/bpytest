@@ -10,47 +10,6 @@ from abc import ABC, abstractmethod
 
 from . import TestUnit
 
-class OutputHandler:
-    def __init__(self, display_output : bool):
-        
-        self._display_output = display_output
-        self.messages = []
-
-    def write(self, message):
-        if not message:
-            return
-        if message == "\n":
-            return
-        message = message.rstrip()
-
-        if self._display_output: # Allows to display lines without causing a recursion
-            print(message, file=sys.__stdout__)
-
-        self.messages.append(message)
-
-    def flush(self):
-        pass
-
-def start_output_handler(output_handler : OutputHandler):
-    '''Blocks the print function'''
-    sys.stdout = output_handler
-
-def stop_output_handler():
-    '''Enables the print function'''
-    sys.stdout = sys.__stdout__
-
-def overwrite_standard_output(func):
-    '''Decorator that overwrites the print function from the sys.__stdout__ to a custom print function'''
-    def wrapper(self : TestProcess, *args, **kwargs):
-
-        start_output_handler(self._output_handler)
-        result = func(self, *args, **kwargs)
-        stop_output_handler()
-
-        self._test_unit.result_lines = self._output_handler.messages
-        return result
-
-    return wrapper
 
 class TestProcess(ABC):
     '''Abstract class that defines the test process execution. The execution
@@ -66,22 +25,38 @@ class TestProcess(ABC):
     '''
 
     def __init__(self, test_unit : TestUnit, pythonpath : Path, display_output : bool):
-
         self._test_unit = test_unit
         self._display_output = display_output
         self._pythonpath = pythonpath
 
-        self._output_handler = OutputHandler(display_output = self._display_output)
-    
-    @abstractmethod
-    def execute(self) -> bool:
-        ...
+    def _block_standard_output(self):
+        '''Blocks the print function if display_output is False'''
+        if not self._display_output:
+            sys.stdout = open(os.devnull, 'w')
 
+    def _restore_standard_output(self):
+        '''Enables the print function if display_output is False'''
+
+        if not self._display_output:
+            sys.stdout = sys.__stdout__
+
+    def execute(self) -> bool:
+        '''Executes the test and returns the result'''
+        
+        self._block_standard_output()
+        result = self._execute()
+        self._restore_standard_output()
+        
+        return result
+
+    @abstractmethod
+    def _execute(self) -> bool:
+        '''Executes the test and returns the result'''
+        
 class BackgroundTest(TestProcess):
     '''Runs the test in a subprocess in a different blender process'''
 
-    @overwrite_standard_output
-    def execute(self) -> bool:
+    def _execute(self) -> bool:
 
         generator_filepath = Path(__file__).parent.parent / "generators" /  "background_test_process.py"
 
@@ -103,7 +78,7 @@ class BackgroundTest(TestProcess):
                 )
         
         if result.returncode != 0:
-            self._output_handler.messages.append("Error: " + result.stderr.decode("utf-8"))
+            self._test_unit.result_lines.append("Error: " + result.stderr.decode("utf-8"))
             return False
         
         return True
@@ -111,8 +86,7 @@ class BackgroundTest(TestProcess):
 class RuntimeTest(TestProcess):
     '''Runs the test in the current blender process'''
 
-    @overwrite_standard_output
-    def execute(self):
+    def _execute(self):
 
         module_filepath = self._test_unit.test_file.filepath
 
@@ -128,7 +102,7 @@ class RuntimeTest(TestProcess):
             try:
                 obj() 
             except:
-                traceback.print_exc(file = self._output_handler)
+                self._test_unit.result_lines.append(traceback.format_exc())
                 return False
            
         return True

@@ -11,7 +11,7 @@ pythonPlatform = "Windows"
 
 [tool.bpytest]
 test_search_relative_path=""
-test_mode="runtime"
+test_mode="background"
 selected_functions=[]
 pythonpath=""
 display_output=true
