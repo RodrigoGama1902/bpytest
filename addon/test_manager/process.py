@@ -104,7 +104,10 @@ class RuntimeTest(TestProcess):
 
         if hasattr(obj, "__call__"): 
             try:
-                obj() 
+                result = obj() 
+                if result == False: # Fail if the test returns False
+                   raise Exception("Test failed, returned False")
+                return True
             except:
                 self._test_unit.result_lines.append(traceback.format_exc())
                 return False

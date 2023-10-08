@@ -34,7 +34,12 @@ def main():
     enable_module_list(module_list)
 
     if hasattr(obj, "__call__"): 
-        return obj()
+        result = obj()
+
+    if result == False:
+        return False
+
+    return True
 
 try:
     result = main()

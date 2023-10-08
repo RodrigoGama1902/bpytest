@@ -8,6 +8,9 @@ def test_failed():
     print("????????")
     assert False
 
+def test_failed_with_false():
+    return False
+
 def test_cube_creation():
 
     bpy.ops.mesh.primitive_cube_add()
