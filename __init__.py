@@ -17,4 +17,3 @@ def unregister():
     from .addon.register import unregister_addon
     unregister_addon()
 
-# TODO - Write better documentation
