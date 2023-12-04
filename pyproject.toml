@@ -14,7 +14,7 @@ extraPaths = [
 ]
 
 [tool.bpytest]
-test_mode="runtime"
+runner_type="runtime"
 pythonpath=""
 module_list=""
 display_output=true

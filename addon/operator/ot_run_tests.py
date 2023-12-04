@@ -1,7 +1,7 @@
 import bpy #type:ignore
 
 from bpytest.bpytest.manager import TestManager
-from bpytest.bpytest.entity import ConfigFile, CollectorString
+from bpytest.bpytest.entity import BpyTestConfig, CollectorString
 from bpytest.bpytest.collector import Collector
 
 from pathlib import Path
@@ -24,21 +24,21 @@ class BPYTEST_OT_Tests(bpy.types.Operator):
             keyword=""
         )
         
-        config_file = ConfigFile()
-        config_file.load_from_pyproject_toml(Path(self.collector_string, 'pyproject.toml'))
-        config_file.blender_exe = Path(bpy.app.binary_path)
+        bpytest_config = BpyTestConfig()
+        bpytest_config.load_from_pyproject_toml(Path(self.collector_string, 'pyproject.toml'))
+        bpytest_config.blender_exe = Path(bpy.app.binary_path)
         
         test_manager = TestManager(
-            config_file = config_file, 
+            bpytest_config = bpytest_config, 
             collector = collector
         )
         
-        if test_manager.config_file.toggle_console:
+        if test_manager.bpytest_config.toggle_console:
             bpy.ops.wm.console_toggle()
 
         test_manager.execute()
 
-        if test_manager.config_file.toggle_console:
+        if test_manager.bpytest_config.toggle_console:
             bpy.ops.wm.console_toggle()
 
         self.report({'INFO'}, f"Failed: {test_manager.failed} Success: {test_manager.success} Total Time: {test_manager.total_time:.2f}")

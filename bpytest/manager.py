@@ -4,7 +4,7 @@ from .collector import Collector
 from .runner import BackgroundTest, RuntimeTest
 from .print_helper import *
 
-from .entity import TestUnit, ConfigFile, TestMode, CollectorString
+from .entity import TestUnit, BpyTestConfig, RunnerType, CollectorString
 from pathlib import Path
 
 class TestManager:
@@ -22,19 +22,17 @@ class TestManager:
 
     def __init__(
             self, 
-            config_file : ConfigFile,
+            bpytest_config : BpyTestConfig,
             collector : Collector,
             ):
         
-        self._collector = collector  
         self._finished_tests_list = []
-        self._config_file = config_file
-
-        self._pythonpath = Path(Path.cwd() / self._config_file.pythonpath).absolute()
+        self._collector = collector  
+        self._bpytest_config = bpytest_config
     
     @property
-    def config_file(self) -> ConfigFile:
-        return self._config_file
+    def bpytest_config(self) -> BpyTestConfig:
+        return self._bpytest_config
     
     @property
     def failed(self) -> int:
@@ -87,16 +85,15 @@ class TestManager:
         
         for test_unit in collector.selected:
             
-            match self._config_file.test_mode:
-                case TestMode.BACKGROUND:
+            match self._bpytest_config.runner_type:
+                case RunnerType.BACKGROUND:
                     test_class = BackgroundTest
-                case TestMode.RUNTIME:
+                case RunnerType.RUNTIME:
                     test_class = RuntimeTest
 
             test_process = test_class(
-                                    test_unit = test_unit, 
-                                    pythonpath = self._pythonpath, 
-                                    config_file= self._config_file)
+                                    test_unit = test_unit,  
+                                    bpytest_config= self._bpytest_config)
             
             result = test_process.execute()
             test_unit.success = result

@@ -5,7 +5,7 @@ from colorama import Fore
 from enum import Enum
 from dataclasses import dataclass, field
 
-class TestMode(Enum):
+class RunnerType(Enum):
 
     BACKGROUND = "background"
     RUNTIME = "runtime"
@@ -34,13 +34,13 @@ class CollectorString:
         return self.collector_string
     
 @dataclass
-class ConfigFile:
+class BpyTestConfig:
     '''Reads pyproject.toml file
     
     :param pythonpath: Path python cwd
     :param display_output: Show test log
     :param toggle_console: Toggle console before and after running tests
-    :param test_mode: Define the test process mode to be used, background or runtime.
+    :param runner_type: Define the test process mode to be used, background or runtime.
         In background mode, the test is run in a subprocess, in runtime mode, the test is run in
         the current blender process.
     :param module_list: List of modules to be loaded before running the tests
@@ -52,7 +52,7 @@ class ConfigFile:
     display_output : bool = field(default=False)
     toggle_console : bool = field(default=False)
     module_list : str = field(default="")
-    test_mode : TestMode = field(default=TestMode.BACKGROUND)
+    runner_type : RunnerType = field(default=RunnerType.BACKGROUND)
     blender_exe : Path = field(default=Path.cwd())
 
     def load_from_pyproject_toml(self, pyproject_toml_path : Path):
@@ -69,12 +69,12 @@ class ConfigFile:
             print("tool.bpytest not found")
             return
         
-        self.pythonpath = pyproject_toml.get("pythonpath")
+        self.pythonpath = Path(pyproject_toml.get("pythonpath")).absolute()
         self.display_output = pyproject_toml.get("display_output", False)
         self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error",False)
         self.module_list = pyproject_toml.get("module_list", "")
-        self.test_mode = TestMode(pyproject_toml.get("test_mode", "background"))
+        self.runner_type = RunnerType(pyproject_toml.get("runner_type", "background"))
         self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
         
 class TestUnit:

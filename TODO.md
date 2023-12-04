@@ -7,7 +7,7 @@
 
 [ ] Add a UI list that allows to [maybe one or more] addons to test
 [ ] add all pyproject.toml config to Blender UI
-    collector string, keyword, -s, test_mode
+    collector string, keyword, -s, runner_type
 [ ] 
 
 

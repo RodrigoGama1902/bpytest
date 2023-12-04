@@ -8,7 +8,7 @@ from pathlib import Path
 
 from abc import ABC, abstractmethod
 
-from .entity import ConfigFile, TestUnit
+from .entity import BpyTestConfig, TestUnit
 from dataclasses import dataclass, field
 
 @dataclass
@@ -58,14 +58,13 @@ class TestRunner(ABC):
     def __init__(
         self, 
         test_unit : TestUnit, 
-        pythonpath : Path, 
-        config_file : ConfigFile,
+        bpytest_config : BpyTestConfig,
         ):
 
         self._test_unit = test_unit
-        self._config_file = config_file
-        self._display_output = config_file.display_output
-        self._pythonpath = pythonpath
+        self._bpytest_config = bpytest_config
+        self._display_output = bpytest_config.display_output
+        self._pythonpath = bpytest_config.pythonpath
 
     def _block_standard_output(self):
         '''Blocks the print function if display_output is False'''
@@ -99,14 +98,14 @@ class BackgroundTest(TestRunner):
         generator_filepath = Path(__file__).parent /  "_runner_blender_script.py"
 
         cmd = [
-            self._config_file.blender_exe.as_posix(),
+            self._bpytest_config.blender_exe.as_posix(),
             "--background",
             "--python", generator_filepath.__str__(),
             "--",
             "filepath:" + self._test_unit.test_filepath.__str__(),
             "pythonpath:" + self._pythonpath.__str__(),
             "function_name:" + self._test_unit.function_name,
-            "module_list:" + self._config_file.module_list
+            "module_list:" + self._bpytest_config.module_list
         ]
 
         result = subprocess.run(

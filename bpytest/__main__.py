@@ -1,6 +1,6 @@
 import argparse
 
-from .entity import TestMode, ConfigFile, CollectorString
+from .entity import RunnerType, BpyTestConfig, CollectorString
 from .manager import TestManager
 
 from .collector import Collector
@@ -39,14 +39,14 @@ def main():
         keyword=args.keyword
     )
     
-    config_file = ConfigFile()
-    config_file.load_from_pyproject_toml(Path.cwd() / 'pyproject.toml')
+    bpytest_config = BpyTestConfig()
+    bpytest_config.load_from_pyproject_toml(Path.cwd() / 'pyproject.toml')
     
-    config_file.test_mode = TestMode.BACKGROUND
-    config_file.display_output = args.nocapture
+    bpytest_config.runner_type = RunnerType.BACKGROUND
+    bpytest_config.display_output = args.nocapture
     
     test_manager = TestManager(
-            config_file = config_file, 
+            bpytest_config = bpytest_config, 
             collector = collector)
     
     test_manager.execute()
