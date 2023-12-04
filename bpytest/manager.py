@@ -1,13 +1,14 @@
 import time
 
-from . import Collector
-from .process import BackgroundTest, RuntimeTest
+from .collector import Collector
+from .runner import BackgroundTest, RuntimeTest
 from .print_helper import *
 
 from .entity import TestUnit, ConfigFile, TestMode
 from pathlib import Path
 
 class TestManager:
+    '''Collects, process and manages the test session'''
 
     _source_directory : Path
     _finished_tests_list : list[TestUnit]

@@ -1,7 +1,7 @@
 import argparse
 
-from .test_manager import TestManager
-from .test_manager.entity import TestMode, ConfigFile
+from .entity import TestMode, ConfigFile
+from .manager import TestManager
 
 from pathlib import Path
 

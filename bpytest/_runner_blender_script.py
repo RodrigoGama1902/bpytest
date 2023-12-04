@@ -8,7 +8,7 @@ import traceback
 
 from pathlib import Path
 
-from bpytest.bpytest.test_manager.process import execute
+from bpytest.bpytest.runner import execute
 
 for arg in sys.argv:
     if arg.startswith("filepath:"):

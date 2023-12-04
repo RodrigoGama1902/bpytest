@@ -11,8 +11,6 @@ from abc import ABC, abstractmethod
 from .entity import ConfigFile, TestUnit
 from dataclasses import dataclass, field
 
-from ..fixtures import fixture_manager
-
 @dataclass
 class ExecutionResult:
     '''Class that represents the result of the test execution'''
@@ -20,14 +18,7 @@ class ExecutionResult:
     result_lines : list[str] = field(default_factory=list)
 
 def execute(pythonpath : Path, module_filepath : Path, function_name : str) -> ExecutionResult:
-    
-    # Run tests
-    for fixture_name in fixture_manager.fixtures:
-        fixture_func = fixture_manager.get_fixture(fixture_name)
-        if fixture_func.__name__.startswith("setup"):
-            # Run setup fixtures before tests
-            fixture_func()
-    
+        
     sys.path.append(str(pythonpath))
 
     spec = importlib.util.spec_from_file_location(module_filepath.stem, module_filepath)  
@@ -51,7 +42,7 @@ def execute(pythonpath : Path, module_filepath : Path, function_name : str) -> E
         
     return ExecutionResult(True)
 
-class TestProcess(ABC):
+class TestRunner(ABC):
     '''Abstract class that defines the test process execution. The execution
     consists in running the test in a subprocess or in the current blender process.
 
@@ -100,12 +91,12 @@ class TestProcess(ABC):
     def _execute(self) -> bool:
         '''Executes the test and returns the result'''
 
-class BackgroundTest(TestProcess):
+class BackgroundTest(TestRunner):
     '''Runs the test in a subprocess in a different blender process'''
 
     def _execute(self) -> bool:
 
-        generator_filepath = Path(__file__).parent /  "background_test_process.py"
+        generator_filepath = Path(__file__).parent /  "_runner_blender_script.py"
 
         cmd = [
             self._config_file.blender_exe.as_posix(),
@@ -131,7 +122,7 @@ class BackgroundTest(TestProcess):
         
         return True
 
-class RuntimeTest(TestProcess):
+class RuntimeTest(TestRunner):
     '''Runs the test in the current blender process'''
 
     def _execute(self):
