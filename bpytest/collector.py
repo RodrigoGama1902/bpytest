@@ -11,8 +11,6 @@ class Collector:
     test_units : list[TestUnit] = []
     selected : list[TestUnit] = []
     
-    _collector_string_unit : CollectorString
-    
     ignore_dirs : list[str] = [
         "__pycache__", 
         ".git", 
@@ -39,7 +37,9 @@ class Collector:
         self.test_units = self._load_all_test_units(self.test_files)
         
         self.selected = self._filter_by_collector_string(self.test_units, self._collector_string)
-        self.selected = self.filter_by_keyword(self.selected, keyword)
+        
+        if keyword:
+            self.selected = self.filter_by_keyword(self.selected, keyword)
                         
         print_selected_functions(
             len(self.test_units),
@@ -63,9 +63,12 @@ class Collector:
         filtered : list[TestUnit] = []
         
         for unit in test_units:
-            if not filter_collector_string.path.resolve() == unit.collector_string.path.resolve():
-                continue
-            
+            if filter_collector_string.path.is_file():
+                if not filter_collector_string.path == unit.collector_string.path:
+                    continue
+            if filter_collector_string.path.is_dir():
+                if not unit.collector_string.path.is_relative_to(filter_collector_string.path):
+                    continue
             if filter_collector_string.unit:
                 if not filter_collector_string.unit == unit.collector_string.unit:
                     continue

@@ -11,10 +11,10 @@ class TestManager:
     '''Collects, process and manages the test session'''
 
     _collector_string : CollectorString
+    _collector : Collector
     _source_directory : Path
     _finished_tests_list : list[TestUnit]
     
-
     _failed : int
     _success : int
 
@@ -23,16 +23,14 @@ class TestManager:
     def __init__(
             self, 
             config_file : ConfigFile,
-            collector_string : str = "."):
-                
-        self._collector_string = CollectorString(collector_string)               
+            collector : Collector,
+            ):
+        
+        self._collector = collector  
         self._finished_tests_list = []
         self._config_file = config_file
 
-        self._pythonpath = Path(self._collector_string.directory, self._config_file.pythonpath).absolute()
-
-        if not self._collector_string.directory:
-            raise Exception("Source Directory not set")
+        self._pythonpath = Path(Path.cwd() / self._config_file.pythonpath).absolute()
     
     @property
     def config_file(self) -> ConfigFile:
@@ -112,10 +110,7 @@ class TestManager:
         '''Executes the test session'''
 
         print_header("Test session starts")
-                
-        collector = Collector(self._collector_string)
-        
-        self._run_tests(collector)
+        self._run_tests(self._collector)
 
         print_failed(self._finished_tests_list)
         self._compute_result()

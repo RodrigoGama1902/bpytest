@@ -39,7 +39,6 @@ class ConfigFile:
     
     :param pythonpath: Path python cwd
     :param display_output: Show test log
-    :param selected_functions: List of selected functions to test functions to run
     :param toggle_console: Toggle console before and after running tests
     :param test_mode: Define the test process mode to be used, background or runtime.
         In background mode, the test is run in a subprocess, in runtime mode, the test is run in
@@ -51,7 +50,6 @@ class ConfigFile:
 
     pythonpath : Path = field(default=Path.cwd())
     display_output : bool = field(default=False)
-    selected_functions : list[Path] = field(default_factory=list)
     toggle_console : bool = field(default=False)
     module_list : str = field(default="")
     test_mode : TestMode = field(default=TestMode.BACKGROUND)
@@ -73,7 +71,6 @@ class ConfigFile:
         
         self.pythonpath = pyproject_toml.get("pythonpath")
         self.display_output = pyproject_toml.get("display_output", False)
-        self.selected_functions = pyproject_toml.get("selected_functions", [])
         self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error",False)
         self.module_list = pyproject_toml.get("module_list", "")

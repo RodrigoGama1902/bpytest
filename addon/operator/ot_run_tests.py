@@ -1,6 +1,8 @@
 import bpy #type:ignore
 
-from bpytest.bpytest.test_manager import TestManager, ConfigFile
+from bpytest.bpytest.manager import TestManager
+from bpytest.bpytest.entity import ConfigFile, CollectorString
+from bpytest.bpytest.collector import Collector
 
 from pathlib import Path
 
@@ -17,13 +19,19 @@ class BPYTEST_OT_Tests(bpy.types.Operator):
     
     def execute(self, context):
         
+        collector = Collector(
+            collector_string=CollectorString(self.source_directory),
+            keyword=""
+        )
+        
         config_file = ConfigFile()
         config_file.load_from_pyproject_toml(Path(self.source_directory, 'pyproject.toml'))
         config_file.blender_exe = Path(bpy.app.binary_path)
         
         test_manager = TestManager(
             config_file = config_file, 
-            source_directory = Path(self.source_directory))
+            collector = collector
+        )
         
         if test_manager.config_file.toggle_console:
             bpy.ops.wm.console_toggle()

@@ -1,7 +1,9 @@
 import argparse
 
-from .entity import TestMode, ConfigFile
+from .entity import TestMode, ConfigFile, CollectorString
 from .manager import TestManager
+
+from .collector import Collector
 
 from pathlib import Path
 
@@ -32,6 +34,10 @@ def main():
     print(f"No Capture: {args.nocapture}")
     print(f"Quiet: {args.quiet}")
     
+    collector = Collector(
+        collector_string=CollectorString(args.collector_string),
+        keyword=args.keyword
+    )
     
     config_file = ConfigFile()
     config_file.load_from_pyproject_toml(Path.cwd() / 'pyproject.toml')
@@ -39,12 +45,9 @@ def main():
     config_file.test_mode = TestMode.BACKGROUND
     config_file.display_output = args.nocapture
     
-    if args.keyword:
-        config_file.selected_functions = [args.keyword,]
-    
     test_manager = TestManager(
             config_file = config_file, 
-            collector_string = args.collector_string)
+            collector = collector)
     
     test_manager.execute()
 

@@ -3,6 +3,14 @@
 
 [ ] Write better documentation
 
+# ------------- Blender Interface ---------------
+
+[ ] Add a UI list that allows to [maybe one or more] addons to test
+[ ] add all pyproject.toml config to Blender UI
+    collector string, keyword, -s, test_mode
+[ ] 
+
+
 # ------------- Test Assert System -------------
 
 [x] Subprocess and same instance process should have the same test 
@@ -14,8 +22,7 @@
 [ ] Make a correct implementation of the "-s" argument, that stands for --nocapture
     Currently the implementation only stands for "-s will display output", which is not correctly implemented.
     like in pytest.
-[ ] Create a better test collection system, so the -k flag can be used correctly.
-    Make it so that all collected functions can be filtered
+
 
 # ------------- Command Line --------------
 
