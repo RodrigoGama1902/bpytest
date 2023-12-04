@@ -1,4 +1,3 @@
-import bpy #type:ignore
 import subprocess
 import importlib.util
 import traceback
@@ -25,7 +24,12 @@ class TestProcess(ABC):
 
     '''
 
-    def __init__(self, test_unit : TestUnit, pythonpath : Path, config_file : ConfigFile):
+    def __init__(
+        self, 
+        test_unit : TestUnit, 
+        pythonpath : Path, 
+        config_file : ConfigFile,
+        ):
 
         self._test_unit = test_unit
         self._config_file = config_file
@@ -64,7 +68,7 @@ class BackgroundTest(TestProcess):
         generator_filepath = Path(__file__).parent.parent / "generators" /  "background_test_process.py"
 
         cmd = [
-            bpy.app.binary_path,
+            self._config_file.blender_exe.as_posix(),
             "--background",
             "--python", generator_filepath.__str__(),
             "--",

@@ -9,6 +9,19 @@ from .print_helper import print_selected_functions
 class Collector:
 
     test_files : list[TestFile] = []
+    
+    ignore_dirs : list[str] = [
+        "__pycache__", 
+        ".git", 
+        ".vscode", 
+        ".idea", 
+        ".pytest_cache", 
+        "venv", 
+        "build", 
+        "dist", 
+        "node_modules", 
+        ".venv"]
+    
     path : Path
     
     def __init__(self, path, selected_functions = []):
@@ -56,8 +69,11 @@ class Collector:
 
         py_files = []
         for root, dirs, files in os.walk(path):
+            
+            if any(ignore_dir in root for ignore_dir in self.ignore_dirs):
+                continue
+            
             for file in files:
-                
                 if not file.endswith(".py"):
                     continue
                 if not "_test.py" in file or "test_" in file:

@@ -1,8 +1,8 @@
 import bpy #type:ignore
 
-from ..test_manager import TestManager
-from pathlib import Path
+from bpytest.bpytest.test_manager import TestManager, ConfigFile
 
+from pathlib import Path
 
 class BPYTEST_OT_Tests(bpy.types.Operator):
     """Run Tests"""
@@ -16,8 +16,14 @@ class BPYTEST_OT_Tests(bpy.types.Operator):
                                                 ) # type:ignore
     
     def execute(self, context):
-
-        test_manager = TestManager(Path(self.source_directory))
+        
+        config_file = ConfigFile()
+        config_file.load_from_pyproject_toml(Path(self.source_directory, 'pyproject.toml'))
+        config_file.blender_exe = Path(bpy.app.binary_path)
+        
+        test_manager = TestManager(
+            config_file = config_file, 
+            source_directory = Path(self.source_directory))
         
         if test_manager.config_file.toggle_console:
             bpy.ops.wm.console_toggle()

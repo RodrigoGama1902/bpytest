@@ -1,9 +1,7 @@
-import bpy # type: ignore
-import sys
 import time
 
 from . import TestUnit, Collector
-from .process import TestProcess, BackgroundTest, RuntimeTest
+from .process import BackgroundTest, RuntimeTest
 from .print_helper import *
 
 from .config_file import TestMode, ConfigFile
@@ -21,11 +19,15 @@ class TestManager:
     _total_time : float
 
     def __init__(
-            self, source_directory : Path):
+            self, 
+            config_file : ConfigFile,
+            source_directory : Path):
         
         self._source_directory = source_directory
         self._finished_tests_list = []
-        self._config_file = ConfigFile(Path(self._source_directory))
+        
+        self._config_file = config_file
+        
         self._pythonpath = Path(self._source_directory, self._config_file.pythonpath).absolute()
         self._test_search_directory = Path(self._source_directory, self._config_file.test_search_relative_path).absolute()
 

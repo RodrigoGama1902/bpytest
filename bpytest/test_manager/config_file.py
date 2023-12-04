@@ -3,11 +3,14 @@ from pathlib import Path
 
 from enum import Enum
 
+from dataclasses import dataclass, field
+
 class TestMode(Enum):
 
     BACKGROUND = "background"
     RUNTIME = "runtime"
 
+@dataclass
 class ConfigFile:
     '''Reads pyproject.toml file
     
@@ -22,32 +25,25 @@ class ConfigFile:
     
     '''
 
-    pythonpath : Path 
-    test_search_relative_path : Path
-    display_output : bool
-    selected_functions : list[Path]
-    toggle_console : bool
-    module_list : str 
-    test_mode : TestMode
+    pythonpath : Path = field(default=Path.cwd())
+    test_search_relative_path : Path = field(default=Path.cwd())
+    display_output : bool = field(default=False)
+    selected_functions : list[Path] = field(default_factory=list)
+    toggle_console : bool = field(default=False)
+    module_list : str = field(default="")
+    test_mode : TestMode = field(default=TestMode.BACKGROUND)
+    blender_exe : Path = field(default=Path.cwd())
 
-    def __init__(
-            self, 
-            source_directory : Path):
-
-        self.source_directory = source_directory
-        pyproject_toml_filepath = Path(source_directory, "pyproject.toml")
-
-        if not pyproject_toml_filepath.exists():
-            raise Exception("pyproject.toml not found")
-
-        self.load_pyproject_toml()
-
-    def load_pyproject_toml(self):
+    def load_from_pyproject_toml(self, pyproject_toml_path : Path):
+        '''Loads the config file from pyproject.toml'''
 
         import toml # type: ignore
 
         try:
-            pyproject_toml = toml.load(Path(self.source_directory, "pyproject.toml"))["tool"]["bpytest"]
+            if not pyproject_toml_path.exists():
+                raise Exception("pyproject.toml not found")
+            
+            pyproject_toml = toml.load(pyproject_toml_path)["tool"]["bpytest"]
         except KeyError:
             print("tool.bpytest not found")
             return
@@ -60,3 +56,4 @@ class ConfigFile:
         self.raise_error = pyproject_toml.get("raise_error",False)
         self.module_list = pyproject_toml.get("module_list", "")
         self.test_mode = TestMode(pyproject_toml.get("test_mode", "background"))
+        self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
