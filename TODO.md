@@ -1,24 +1,29 @@
 
 # ------------- Documentation -------------
 
-# [ ] Write better documentation
+[ ] Write better documentation
 
 # ------------- Test Assert System -------------
 
-# [x] Subprocess and same instance process should have the same test 
-# logic inside of it, currently they are the same code but in different places.
+[x] Subprocess and same instance process should have the same test 
+    logic inside of it, currently they are the same code but in different places.
 
 # ------------- Test Unit System --------------
 
-# [ ] Add fixtures
+[ ] Add fixtures
+[ ] Make a correct implementation of the "-s" argument, that stands for --nocapture
+    Currently the implementation only stands for "-s will display output", which is not correctly implemented.
+    like in pytest.
+[ ] Create a better test collection system, so the -k flag can be used correctly.
+    Make it so that all collected functions can be filtered
 
 # ------------- Command Line --------------
 
-# [ ] Add command line interface
+[ ] Add command line interface
 
 # ------------- Distribution --------------
 
-# [ ] Add pip distribution
+[ ] Add pip distribution
 
 
 
