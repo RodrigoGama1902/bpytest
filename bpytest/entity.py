@@ -22,6 +22,8 @@ class ConfigFile:
     :param test_mode: Define the test process mode to be used, background or runtime.
         In background mode, the test is run in a subprocess, in runtime mode, the test is run in
         the current blender process.
+    :param module_list: List of modules to be loaded before running the tests
+    :param blender_exe: Path to blender executable
     
     '''
 
@@ -57,68 +59,58 @@ class ConfigFile:
         self.module_list = pyproject_toml.get("module_list", "")
         self.test_mode = TestMode(pyproject_toml.get("test_mode", "background"))
         self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
+        
+class TestUnit:
+
+    function_name : str
+    success : bool
+    test_filepath : Path
+    result_lines : list[str]
+
+    def __init__(self, test_filepath : Path, function_name : str):
+        
+        self.result_lines = []
+        self.test_filepath = test_filepath
+        self.function_name = function_name
+        self.success = False
+        
+    def test_string(self):
+        return f"{self.test_filepath}::{self.function_name}"
+    
+    def print_log(self):
+        for line in self.result_lines:
+            print(line)
+                
+    def __repr__(self) -> str:
+
+        color = Fore.GREEN if self.success else Fore.RED
+        return f'"{self.test_filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{Fore.RESET}'
 
 class TestFile:
 
-    selected_functions : list[str] = []
-    functions_found : list[str] = []
-
     filepath : Path
+    test_units : list[TestUnit]
     
-    def __init__(self, filepath, selected_functions = []):
+    def __init__(self, filepath):
 
         self.filepath = filepath
-        self.functions_found = self.parse_test_function_names()
-        self.selected_functions = self.load_selected_functions(selected_functions)
+        self.test_units = self.parse_test_units()
 
-    def parse_test_function_names(self):
+    def parse_test_units(self) -> list[TestUnit]:
 
-        functions = []
+        test_units = []
 
         with open(self.filepath, "r") as file:
             lines = file.readlines()
             for line in lines:
                 if not "def test_" in line:
                     continue
-                function_name = line.split("def ")[1].split("(")[0]
-                functions.append(function_name)
+                
+                function_name = line.split("def ")[1].split("(")[0] 
+                test_units.append(TestUnit(self.filepath, function_name))
+
+        return test_units
         
-        return functions
+
     
-    def load_selected_functions(self, selected_functions):
-
-        functions = []
-
-        for function_name in self.functions_found:
-            if not selected_functions or selected_functions == [""]:
-                functions.append(function_name)
-                continue
-            if function_name in selected_functions:
-                functions.append(function_name)
-                continue
-        
-        return functions
     
-class TestUnit:
-
-    test_file : TestFile
-    function_name : str
-    success : bool
-
-    result_lines : list[str]
-
-    def __init__(self, test_file : TestFile, function_name : str):
-        
-        self.result_lines = []
-        self.test_file = test_file
-        self.function_name = function_name
-        self.success = False
-    
-    def print_log(self):
-        for line in self.result_lines:
-            print(line)
-    
-    def __repr__(self) -> str:
-
-        color = Fore.GREEN if self.success else Fore.RED
-        return f'"{self.test_file.filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{Fore.RESET}'

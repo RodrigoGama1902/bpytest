@@ -44,7 +44,7 @@ def main():
     
     test_manager = TestManager(
             config_file = config_file, 
-            source_directory = Path.cwd())
+            collector_string = "")
     
     test_manager.execute()
 

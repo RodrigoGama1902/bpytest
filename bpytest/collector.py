@@ -2,12 +2,16 @@ import os
 
 from pathlib import Path
 
-from .entity import TestFile
+from .entity import TestFile, TestUnit
 from .print_helper import print_selected_functions
 
 class Collector:
 
     test_files : list[TestFile] = []
+    test_units : list[TestUnit] = []
+    selected : list[TestUnit] = []
+    
+    _collector_string_unit : str = ""
     
     ignore_dirs : list[str] = [
         "__pycache__", 
@@ -23,47 +27,58 @@ class Collector:
     
     path : Path
     
-    def __init__(self, path, selected_functions = []):
-        self.path = path
- 
-        if path.is_file():
-            self.test_files.append(TestFile(path, selected_functions))
-        if path.is_dir():
-            self.test_files = [TestFile(path, selected_functions) for path in self.get_py_files_recursive(path)]
-
-        print_selected_functions(
-            self.get_total_collected_tests(),
-            self.get_total_deselected_tests(),
-            self.get_total_selected_tests()
-        )
-    
-    def get_total_collected_tests(self) -> int:
+    def __init__(self, collector_string, keyword = ""):
         
-        total = 0
-
-        for test in self.test_files:
-            total += len(test.functions_found)
-
-        return total
+        self._collector_string = collector_string
+        self._path = Path(self._collector_string.split("::")[0]).absolute()
+            
+        if self._path.is_file():
+            self.test_files.append(TestFile(self._path))
+        if self._path.is_dir():
+            self.test_files = [TestFile(path) for path in self.get_py_files_recursive(self._path)]
+            
+        self.test_units = self._load_all_test_units(self.test_files)
+        
+        self.selected = self._filter_by_collector_string(self.test_units, self._collector_string)
+        self.selected = self.filter_by_keyword(self.selected, keyword)
+                        
+        print_selected_functions(
+            len(self.test_units),
+            len(self.test_units) - len(self.selected),
+            len(self.selected)
+        )
+        
+    @staticmethod
+    def _load_all_test_units(test_files) -> list[TestUnit]:
+        
+        test_units = []
+        
+        for test_file in test_files:
+            test_units.extend(test_file.test_units)
+            
+        return test_units
     
-    def get_total_selected_tests(self) -> int:
-
-        total = 0
-
-        for test in self.test_files:
-            total += len(test.selected_functions)
-
-        return total
+    @staticmethod
+    def _filter_by_collector_string(test_units, collector_string) -> list[TestUnit]:
+        
+        filtered : list[TestUnit] = []
+        for unit in test_units:
+            if collector_string in unit.test_string():
+                filtered.append(unit)
+        
+        return filtered
     
-    def get_total_deselected_tests(self) -> int:
+    @staticmethod
+    def filter_by_keyword(test_units, keyword):
 
-        total = 0
+        functions = []
+        
+        for unit in test_units:
+            if keyword in unit.function_name:
+                functions.append(unit)
 
-        for test in self.test_files:
-            total += len(test.functions_found) - len(test.selected_functions)
-
-        return total
-    
+        return functions
+                        
     def get_py_files_recursive(self, path):
 
         py_files = []

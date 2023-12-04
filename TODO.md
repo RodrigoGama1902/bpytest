@@ -23,6 +23,8 @@
 
 # ------------- Distribution --------------
 
+[ ] Currently, the add-on and the package are the same things, 
+    which lead to some problems like strange imports like "from bpytest.bpytest.runner import execute"
 [ ] Add pip distribution
 
 

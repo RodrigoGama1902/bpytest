@@ -103,7 +103,7 @@ class BackgroundTest(TestRunner):
             "--background",
             "--python", generator_filepath.__str__(),
             "--",
-            "filepath:" + self._test_unit.test_file.filepath.__str__(),
+            "filepath:" + self._test_unit.test_filepath.__str__(),
             "pythonpath:" + self._pythonpath.__str__(),
             "function_name:" + self._test_unit.function_name,
             "module_list:" + self._config_file.module_list
@@ -129,7 +129,7 @@ class RuntimeTest(TestRunner):
         
         execution_result = execute(
             pythonpath = self._pythonpath,
-            module_filepath = self._test_unit.test_file.filepath,
+            module_filepath = self._test_unit.test_filepath,
             function_name = self._test_unit.function_name
         )
         

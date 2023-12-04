@@ -21,11 +21,18 @@ class TestManager:
     def __init__(
             self, 
             config_file : ConfigFile,
-            source_directory : Path):
+            collector_string : str = "."):
+                
+        self._collector_string = collector_string
+        self._collector_string_unit = ""
         
-        self._source_directory = source_directory
+        if "::" in self._collector_string:
+            self._source_directory = Path(self._collector_string.split("::")[0]).absolute()
+            self._collector_string_unit = self._collector_string.split("::")[1]
+        else:
+            self._source_directory = Path(self._collector_string).absolute()
+               
         self._finished_tests_list = []
-        
         self._config_file = config_file
         
         self._pythonpath = Path(self._source_directory, self._config_file.pythonpath).absolute()
@@ -51,6 +58,7 @@ class TestManager:
     @property
     def total_time(self) -> float:
         return self._total_time
+       
         
     def _compute_result(self):
         '''Computes the result of the test session'''
@@ -73,6 +81,7 @@ class TestManager:
 
         print_header(center_text, print_color)
     
+    
     def _start_time(self):
         '''Starts the timer to be used to compute the total time of the test session'''
         self.start_time = time.time()
@@ -85,36 +94,36 @@ class TestManager:
         '''Runs the tests in the collector'''
         
         self._start_time()
+        
+        
+        for test_unit in collector.selected:
+            
+            match self._config_file.test_mode:
+                case TestMode.BACKGROUND:
+                    test_class = BackgroundTest
+                case TestMode.RUNTIME:
+                    test_class = RuntimeTest
 
-        for test_file in collector.test_files:
-            for function_name in test_file.selected_functions:
-                test_unit = TestUnit(test_file, function_name)
+            test_process = test_class(
+                                    test_unit = test_unit, 
+                                    pythonpath = self._pythonpath, 
+                                    config_file= self._config_file)
+            
+            result = test_process.execute()
+            test_unit.success = result
 
-                match self._config_file.test_mode:
-                    case TestMode.BACKGROUND:
-                        test_class = BackgroundTest
-                    case TestMode.RUNTIME:
-                        test_class = RuntimeTest
-
-                test_process = test_class(
-                                        test_unit = test_unit, 
-                                        pythonpath = self._pythonpath, 
-                                        config_file= self._config_file)
-                
-                result = test_process.execute()
-                test_unit.success = result
-
-                print(test_unit)
-                self._finished_tests_list.append(test_unit)
+            print(test_unit)
+            self._finished_tests_list.append(test_unit)
         
         self._end_time()
+
 
     def execute(self) -> None:
         '''Executes the test session'''
 
         print_header("Test session starts")
-        
-        collector = Collector(self._test_search_directory, self._config_file.selected_functions)
+                
+        collector = Collector(self._collector_string)
         
         self._run_tests(collector)
 
