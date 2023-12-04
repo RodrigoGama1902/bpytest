@@ -14,9 +14,9 @@ class BPYTEST_PT_MainPanel(bpy.types.Panel):
         props = context.scene.bpy_test
 
         box = layout.box()
-        box.prop(props, "source_directory")
+        box.prop(props, "collector_string")
 
         row = box.row()
         row.scale_y = 1.3
-        row.operator("bpytest.run_tests", text = "Run Tests").source_directory = props.source_directory
+        row.operator("bpytest.run_tests", text = "Run Tests").collector_string = props.collector_string
 

@@ -13,19 +13,19 @@ class BPYTEST_OT_Tests(bpy.types.Operator):
     bl_label = "Run detected unit tests"
     bl_options = {'REGISTER', 'UNDO'}
     
-    source_directory : bpy.props.StringProperty(name = 'Addon Source Directory', 
+    collector_string : bpy.props.StringProperty(name = 'Addon Source Directory', 
                                                 description = "Addon Source Directory",
                                                 ) # type:ignore
     
     def execute(self, context):
         
         collector = Collector(
-            collector_string=CollectorString(self.source_directory),
+            collector_string=CollectorString(self.collector_string),
             keyword=""
         )
         
         config_file = ConfigFile()
-        config_file.load_from_pyproject_toml(Path(self.source_directory, 'pyproject.toml'))
+        config_file.load_from_pyproject_toml(Path(self.collector_string, 'pyproject.toml'))
         config_file.blender_exe = Path(bpy.app.binary_path)
         
         test_manager = TestManager(
