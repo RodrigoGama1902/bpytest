@@ -5,7 +5,7 @@
 
 # ------------- Test Assert System -------------
 
-# [ ] Subprocess and same instance process should have the same test 
+# [x] Subprocess and same instance process should have the same test 
 # logic inside of it, currently they are the same code but in different places.
 
 # ------------- Test Unit System --------------

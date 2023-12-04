@@ -10,6 +10,34 @@ from abc import ABC, abstractmethod
 from . import TestUnit
 from . import ConfigFile
 
+from dataclasses import dataclass, field
+
+@dataclass
+class ExecutionResult:
+    '''Class that represents the result of the test execution'''
+    success : bool = False
+    result_lines : list[str] = field(default_factory=list)
+
+def execute(pythonpath : Path, module_filepath : Path, function_name : str) -> ExecutionResult:
+    
+    sys.path.append(str(pythonpath))
+
+    spec = importlib.util.spec_from_file_location(module_filepath.stem, module_filepath)  
+    test_file = importlib.util.module_from_spec(spec) # type:ignore
+    spec.loader.exec_module(test_file) # type:ignore
+        
+    obj = getattr(test_file, function_name)
+
+    if hasattr(obj, "__call__"): 
+        try:
+            result = obj() 
+            if result == False: # Fail if the test returns False
+                raise Exception("Test failed, returned False")      
+            return ExecutionResult(True)
+        except:
+            return ExecutionResult(False, [traceback.format_exc()])
+        
+    return ExecutionResult(True)
 
 class TestProcess(ABC):
     '''Abstract class that defines the test process execution. The execution
@@ -95,27 +123,18 @@ class RuntimeTest(TestProcess):
     '''Runs the test in the current blender process'''
 
     def _execute(self):
-
-        module_filepath = self._test_unit.test_file.filepath
-
-        sys.path.append(str(self._pythonpath))
-
-        spec = importlib.util.spec_from_file_location(module_filepath.stem, module_filepath)  
-        test_file = importlib.util.module_from_spec(spec) # type:ignore
-        spec.loader.exec_module(test_file) # type:ignore
-            
-        obj = getattr(test_file, self._test_unit.function_name)
-
-        if hasattr(obj, "__call__"): 
-            try:
-                result = obj() 
-                if result == False: # Fail if the test returns False
-                   raise Exception("Test failed, returned False")
-                return True
-            except:
-                self._test_unit.result_lines.append(traceback.format_exc())
-                return False
-           
+        
+        execution_result = execute(
+            pythonpath = self._pythonpath,
+            module_filepath = self._test_unit.test_file.filepath,
+            function_name = self._test_unit.function_name
+        )
+        
+        if not execution_result.success:
+            self._test_unit.result_lines = execution_result.result_lines
+            return False
+        
         return True
+
 
 

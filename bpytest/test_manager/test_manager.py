@@ -115,6 +115,7 @@ class TestManager:
         print_header("Test session starts")
         
         collector = Collector(self._test_search_directory, self._config_file.selected_functions)
+        
         self._run_tests(collector)
 
         print_failed(self._finished_tests_list)

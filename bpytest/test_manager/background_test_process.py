@@ -4,10 +4,11 @@
 
 import sys
 import bpy #type:ignore
-import importlib.util
 import traceback
 
 from pathlib import Path
+
+from bpytest.bpytest.test_manager.process import execute
 
 for arg in sys.argv:
     if arg.startswith("filepath:"):
@@ -26,23 +27,13 @@ def enable_module_list(module_list : list):
             bpy.ops.preferences.addon_enable(module=module.strip())
 
 def main():
-
-    sys.path.append(pythonpath.__str__())
-
-    spec = importlib.util.spec_from_file_location(filepath.stem,filepath)  
-    test_file = importlib.util.module_from_spec(spec) # type:ignore
-    spec.loader.exec_module(test_file) # type:ignore
-        
-    obj = getattr(test_file, function_name)
-
+    
     enable_module_list(module_list)
-
-    if hasattr(obj, "__call__"): 
-        result = obj()
-
-    if result == False:
+    execution_result = execute(pythonpath, filepath, function_name)
+    
+    if not execution_result.success:
+        print("\n".join(execution_result.result_lines))
         return False
-
     return True
 
 try:
