@@ -65,7 +65,7 @@ class BackgroundTest(TestProcess):
 
     def _execute(self) -> bool:
 
-        generator_filepath = Path(__file__).parent.parent / "generators" /  "background_test_process.py"
+        generator_filepath = Path(__file__).parent /  "background_test_process.py"
 
         cmd = [
             self._config_file.blender_exe.as_posix(),

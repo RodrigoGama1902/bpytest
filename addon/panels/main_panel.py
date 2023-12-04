@@ -1,5 +1,4 @@
-import bpy
-
+import bpy  #type:ignore
 
 class BPYTEST_PT_MainPanel(bpy.types.Panel):
     bl_label = "Main Panel"

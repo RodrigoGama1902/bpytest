@@ -5,7 +5,6 @@ def test_simple_print():
 
 def test_failed():
     print("Should fail")
-    print("????????")
     assert False
 
 def test_failed_with_false():

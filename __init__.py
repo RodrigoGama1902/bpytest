@@ -1,5 +1,9 @@
+# =============================================================================
+# This is the main __init__.py module for the add-on bundle.
+# =============================================================================
+
 bl_info = {
-    "name": "BPYtester",
+    "name": "BpyTest",
     "description": "Unit Test for Blender Addons",
     "author": "Rodrigo Gama",
     "version": (0, 1, 0),

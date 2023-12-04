@@ -36,6 +36,8 @@ def main():
     config_file = ConfigFile()
     config_file.load_from_pyproject_toml(Path(args.path, 'pyproject.toml'))
     
+    
+    
     config_file.test_mode = TestMode.BACKGROUND
     
     test_manager = TestManager(

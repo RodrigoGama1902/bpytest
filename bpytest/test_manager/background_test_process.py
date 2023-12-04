@@ -1,5 +1,9 @@
+# =============================================================================
+# This is just a script that will be executed in a subprocess inside Blender.exe
+# =============================================================================
+
 import sys
-import bpy
+import bpy #type:ignore
 import importlib.util
 import traceback
 
