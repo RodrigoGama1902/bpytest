@@ -35,10 +35,10 @@ class CollectorString:
     
 @dataclass
 class BpyTestConfig:
-    '''Reads pyproject.toml file
+    '''Class that represents the configuration of the test session.
     
     :param pythonpath: Path python cwd
-    :param display_output: Show test log
+    :param nocapture: Show test log
     :param toggle_console: Toggle console before and after running tests
     :param runner_type: Define the test process mode to be used, background or runtime.
         In background mode, the test is run in a subprocess, in runtime mode, the test is run in
@@ -49,7 +49,7 @@ class BpyTestConfig:
     '''
 
     pythonpath : Path = field(default=Path.cwd())
-    display_output : bool = field(default=False)
+    nocapture : bool = field(default=False)
     toggle_console : bool = field(default=False)
     module_list : str = field(default="")
     runner_type : RunnerType = field(default=RunnerType.BACKGROUND)
@@ -70,7 +70,7 @@ class BpyTestConfig:
             return
         
         self.pythonpath = Path(pyproject_toml.get("pythonpath")).absolute()
-        self.display_output = pyproject_toml.get("display_output", False)
+        self.nocapture = pyproject_toml.get("nocapture", False)
         self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error",False)
         self.module_list = pyproject_toml.get("module_list", "")

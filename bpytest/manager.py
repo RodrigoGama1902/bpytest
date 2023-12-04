@@ -5,14 +5,12 @@ from .runner import BackgroundTest, RuntimeTest
 from .print_helper import *
 
 from .entity import TestUnit, BpyTestConfig, RunnerType, CollectorString
-from pathlib import Path
 
 class TestManager:
-    '''Collects, process and manages the test session'''
+    '''Manages the complete test session'''
 
     _collector_string : CollectorString
     _collector : Collector
-    _source_directory : Path
     _finished_tests_list : list[TestUnit]
     
     _failed : int

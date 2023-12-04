@@ -1,38 +1,34 @@
 
-# ------------- Documentation -------------
+# Documentation
 
-[ ] Write better documentation
+- [ ] Write better documentation
 
-# ------------- Blender Interface ---------------
+# Blender Interface
 
-[ ] Add a UI list that allows to [maybe one or more] addons to test
-[ ] add all pyproject.toml config to Blender UI
+- [ ] Add a UI list that allows to [maybe one or more] addons to test
+- [ ] add all pyproject.toml config to Blender UI
     collector string, keyword, -s, runner_type
-[ ] 
 
+# CLI
 
-# ------------- Test Assert System -------------
+- [x] Add command line interface
+- [ ] #parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
+- [ ] #parser.add_argument('-x', '--exitfirst', action='store_true', help='Exit instantly on first error or failed test')
 
-[x] Subprocess and same instance process should have the same test 
+# Test Assert System
+
+- [x] Subprocess and same instance process should have the same test 
     logic inside of it, currently they are the same code but in different places.
 
-# ------------- Test Unit System --------------
+# Unit Test System
 
-[ ] Add fixtures
-[ ] Make a correct implementation of the "-s" argument, that stands for --nocapture
-    Currently the implementation only stands for "-s will display output", which is not correctly implemented.
-    like in pytest.
+- [ ] Add fixtures
 
+# Distribution
 
-# ------------- Command Line --------------
-
-[ ] Add command line interface
-
-# ------------- Distribution --------------
-
-[ ] Currently, the add-on and the package are the same things, 
+- [ ] Currently, the add-on and the package are the same things, 
     which lead to some problems like strange imports like "from bpytest.bpytest.runner import execute"
-[ ] Add pip distribution
+- [ ] Add pip distribution
 
 
 

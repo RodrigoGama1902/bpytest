@@ -51,7 +51,7 @@ class TestRunner(ABC):
     
     :param test_unit: Test unit to be executed
     :param pythonpath: Path python cwd
-    :param display_output: Defines if should display the test standard output
+    :param nocapture: Defines if should display the test standard output
 
     '''
 
@@ -63,18 +63,18 @@ class TestRunner(ABC):
 
         self._test_unit = test_unit
         self._bpytest_config = bpytest_config
-        self._display_output = bpytest_config.display_output
+        self._nocapture = bpytest_config.nocapture
         self._pythonpath = bpytest_config.pythonpath
 
     def _block_standard_output(self):
-        '''Blocks the print function if display_output is False'''
-        if not self._display_output:
+        '''Blocks the print function if nocapture is False'''
+        if not self._nocapture:
             sys.stdout = open(os.devnull, 'w')
 
     def _restore_standard_output(self):
-        '''Enables the print function if display_output is False'''
+        '''Enables the print function if nocapture is False'''
 
-        if not self._display_output:
+        if not self._nocapture:
             sys.stdout = sys.__stdout__
 
     def execute(self) -> bool:
@@ -111,7 +111,7 @@ class BackgroundTest(TestRunner):
         result = subprocess.run(
                 cmd, 
                 check = False, 
-                stdout= open(os.devnull, 'w') if not self._display_output else None, 
+                stdout= open(os.devnull, 'w') if not self._nocapture else None, 
                 stderr= subprocess.PIPE
                 )
         
