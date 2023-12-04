@@ -9,7 +9,30 @@ class TestMode(Enum):
 
     BACKGROUND = "background"
     RUNTIME = "runtime"
-
+    
+class CollectorString:
+    
+    collector_string : str
+    unit : str = ""
+    directory : Path
+    path : Path
+    
+    def __init__(self, collector_string : str):
+        
+        self.collector_string = collector_string
+        self.path = Path(collector_string.split("::")[0]).absolute()
+        
+        if self.path.is_file():
+            self.directory = self.path.parent
+        else:
+            self.directory = self.path
+        
+        if "::" in self.collector_string:
+            self.unit = self.collector_string.split("::")[1]
+        
+    def __str__(self):
+        return self.collector_string
+    
 @dataclass
 class ConfigFile:
     '''Reads pyproject.toml file
@@ -66,17 +89,17 @@ class TestUnit:
     success : bool
     test_filepath : Path
     result_lines : list[str]
+    collector_string : CollectorString 
 
     def __init__(self, test_filepath : Path, function_name : str):
         
         self.result_lines = []
         self.test_filepath = test_filepath
         self.function_name = function_name
-        self.success = False
+        self.collector_string = CollectorString(f"{self.test_filepath}::{self.function_name}")
         
-    def test_string(self):
-        return f"{self.test_filepath}::{self.function_name}"
-    
+        self.success = False
+     
     def print_log(self):
         for line in self.result_lines:
             print(line)

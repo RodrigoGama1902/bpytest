@@ -4,14 +4,16 @@ from .collector import Collector
 from .runner import BackgroundTest, RuntimeTest
 from .print_helper import *
 
-from .entity import TestUnit, ConfigFile, TestMode
+from .entity import TestUnit, ConfigFile, TestMode, CollectorString
 from pathlib import Path
 
 class TestManager:
     '''Collects, process and manages the test session'''
 
+    _collector_string : CollectorString
     _source_directory : Path
     _finished_tests_list : list[TestUnit]
+    
 
     _failed : int
     _success : int
@@ -23,22 +25,14 @@ class TestManager:
             config_file : ConfigFile,
             collector_string : str = "."):
                 
-        self._collector_string = collector_string
-        self._collector_string_unit = ""
-        
-        if "::" in self._collector_string:
-            self._source_directory = Path(self._collector_string.split("::")[0]).absolute()
-            self._collector_string_unit = self._collector_string.split("::")[1]
-        else:
-            self._source_directory = Path(self._collector_string).absolute()
-               
+        self._collector_string = CollectorString(collector_string)               
         self._finished_tests_list = []
         self._config_file = config_file
         
-        self._pythonpath = Path(self._source_directory, self._config_file.pythonpath).absolute()
-        self._test_search_directory = Path(self._source_directory, self._config_file.test_search_relative_path).absolute()
+        self._pythonpath = Path(self._collector_string.directory, self._config_file.pythonpath).absolute()
+        self._test_search_directory = Path(self._collector_string.directory, self._config_file.test_search_relative_path).absolute()
 
-        if not self._source_directory:
+        if not self._collector_string.directory:
             raise Exception("Source Directory not set")
         if not self._test_search_directory.exists():
             raise Exception("Test search directory not found: " + self._test_search_directory.__str__())
@@ -116,7 +110,6 @@ class TestManager:
             self._finished_tests_list.append(test_unit)
         
         self._end_time()
-
 
     def execute(self) -> None:
         '''Executes the test session'''

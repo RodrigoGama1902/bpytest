@@ -9,7 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description='Simple test runner')
 
     # Positional argument for the test file or directory
-    parser.add_argument('path', nargs='?', default='.', help='Test file or directory path')
+    parser.add_argument('collector_string', nargs='?', default='.', help='Test file or directory path')
 
     # Optional arguments
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
@@ -23,7 +23,7 @@ def main():
     args = parser.parse_args()
 
     # Your program logic with the parsed arguments
-    print(f"Test Path: {args.path}")
+    print(f"Collector String: {args.collector_string}")
     print(f"Verbose: {args.verbose}")
     print(f"Verbose: {args.verbose}")
     print(f"Keyword: {args.keyword}")
@@ -34,7 +34,7 @@ def main():
     
     
     config_file = ConfigFile()
-    config_file.load_from_pyproject_toml(Path(args.path, 'pyproject.toml'))
+    config_file.load_from_pyproject_toml(Path.cwd() / 'pyproject.toml')
     
     config_file.test_mode = TestMode.BACKGROUND
     config_file.display_output = args.nocapture
@@ -44,7 +44,7 @@ def main():
     
     test_manager = TestManager(
             config_file = config_file, 
-            collector_string = "")
+            collector_string = args.collector_string)
     
     test_manager.execute()
 

@@ -2,7 +2,7 @@ import os
 
 from pathlib import Path
 
-from .entity import TestFile, TestUnit
+from .entity import TestFile, TestUnit, CollectorString
 from .print_helper import print_selected_functions
 
 class Collector:
@@ -11,7 +11,7 @@ class Collector:
     test_units : list[TestUnit] = []
     selected : list[TestUnit] = []
     
-    _collector_string_unit : str = ""
+    _collector_string_unit : CollectorString
     
     ignore_dirs : list[str] = [
         "__pycache__", 
@@ -27,15 +27,14 @@ class Collector:
     
     path : Path
     
-    def __init__(self, collector_string, keyword = ""):
+    def __init__(self, collector_string : CollectorString, keyword = ""):
         
         self._collector_string = collector_string
-        self._path = Path(self._collector_string.split("::")[0]).absolute()
-            
-        if self._path.is_file():
-            self.test_files.append(TestFile(self._path))
-        if self._path.is_dir():
-            self.test_files = [TestFile(path) for path in self.get_py_files_recursive(self._path)]
+                    
+        if self._collector_string.path.is_file():
+            self.test_files.append(TestFile(self._collector_string.path))
+        if self._collector_string.path.is_dir():
+            self.test_files = [TestFile(path) for path in self.get_py_files_recursive(self._collector_string.path)]
             
         self.test_units = self._load_all_test_units(self.test_files)
         
@@ -59,13 +58,20 @@ class Collector:
         return test_units
     
     @staticmethod
-    def _filter_by_collector_string(test_units, collector_string) -> list[TestUnit]:
+    def _filter_by_collector_string(test_units, filter_collector_string : CollectorString) -> list[TestUnit]:
         
         filtered : list[TestUnit] = []
-        for unit in test_units:
-            if collector_string in unit.test_string():
-                filtered.append(unit)
         
+        for unit in test_units:
+            if not filter_collector_string.path.resolve() == unit.collector_string.path.resolve():
+                continue
+            
+            if filter_collector_string.unit:
+                if not filter_collector_string.unit == unit.collector_string.unit:
+                    continue
+                
+            filtered.append(unit)
+            
         return filtered
     
     @staticmethod
