@@ -28,14 +28,11 @@ class TestManager:
         self._collector_string = CollectorString(collector_string)               
         self._finished_tests_list = []
         self._config_file = config_file
-        
+
         self._pythonpath = Path(self._collector_string.directory, self._config_file.pythonpath).absolute()
-        self._test_search_directory = Path(self._collector_string.directory, self._config_file.test_search_relative_path).absolute()
 
         if not self._collector_string.directory:
             raise Exception("Source Directory not set")
-        if not self._test_search_directory.exists():
-            raise Exception("Test search directory not found: " + self._test_search_directory.__str__())
     
     @property
     def config_file(self) -> ConfigFile:

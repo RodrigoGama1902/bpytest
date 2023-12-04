@@ -14,7 +14,6 @@ extraPaths = [
 ]
 
 [tool.bpytest]
-test_search_relative_path=""
 test_mode="runtime"
 selected_functions=[]
 pythonpath=""
