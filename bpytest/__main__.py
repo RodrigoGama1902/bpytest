@@ -36,9 +36,9 @@ def main():
     config_file = ConfigFile()
     config_file.load_from_pyproject_toml(Path(args.path, 'pyproject.toml'))
     
-    
-    
     config_file.test_mode = TestMode.BACKGROUND
+    config_file.display_output = args.nocapture
+    config_file.selected_functions = [args.keyword,]
     
     test_manager = TestManager(
             config_file = config_file, 
