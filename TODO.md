@@ -1,6 +1,7 @@
 
 # Documentation
 
+- [ ] Create a readme.md file
 - [ ] Write better documentation
 
 # Blender Interface
@@ -23,6 +24,7 @@
 # Unit Test System
 
 - [ ] Add fixtures
+- [ ] Implement classes grouping
 
 # Distribution
 
