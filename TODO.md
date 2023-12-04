@@ -23,7 +23,7 @@
 
 # Unit Test System
 
-- [ ] Add fixtures
+- [ ] Add fixtures (Maybe the collector will collect all fixtures first)
 - [ ] Implement classes grouping
 
 # Distribution
