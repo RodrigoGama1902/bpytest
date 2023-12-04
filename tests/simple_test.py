@@ -1,6 +1,14 @@
 import bpy # type:ignore
 
-def test_simple_print():
+from bpytest.bpytest import fixture
+
+@fixture
+def simple_fixture():
+    print("Setting up...")
+    yield
+    print("Tearing down...")
+
+def test_simple_print(simple_fixture):
     print("Test should pass")
 
 def test_failed():

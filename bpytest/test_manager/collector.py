@@ -2,8 +2,7 @@ import os
 
 from pathlib import Path
 
-from ..test_manager import TestFile
-
+from .entity import TestFile
 from .print_helper import print_selected_functions
 
 class Collector:

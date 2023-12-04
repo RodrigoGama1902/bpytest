@@ -1,7 +1,7 @@
 import os
 
 from colorama import Fore, Style
-from .test_unit import TestUnit
+from .entity import TestUnit
 
 def print_header(text : str, color : str = "WHITE", bold = True):
 

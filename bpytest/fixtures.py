@@ -18,30 +18,6 @@ def fixture(func):
     fixture_manager.register_fixture(func.__name__, func)
     return func
 
-# Usage example in test file
-
-from fixtures import fixture, fixture_manager
-
-@fixture
-def setup_teardown_example():
-    print("\nSetting up...")
-
-    # Any setup logic can go here
-
-    yield  # This is where the test runs
-
-    print("Tearing down...")
-
-    # Any teardown logic can go here
-
-def test_example(setup_teardown_example):
-    print("Running test_example...")
-    # Your test logic goes here
-
-def test_another_example(setup_teardown_example):
-    print("Running test_another_example...")
-    # Your test logic goes here
-
 if __name__ == "__main__":
     # Run tests
     for fixture_name in fixture_manager.fixtures:

@@ -1,16 +1,17 @@
 import subprocess
 import importlib.util
 import traceback
+import inspect
 import sys, os
 
 from pathlib import Path
 
 from abc import ABC, abstractmethod
 
-from . import TestUnit
-from . import ConfigFile
-
+from .entity import ConfigFile, TestUnit
 from dataclasses import dataclass, field
+
+from ..fixtures import fixture_manager
 
 @dataclass
 class ExecutionResult:
@@ -20,6 +21,13 @@ class ExecutionResult:
 
 def execute(pythonpath : Path, module_filepath : Path, function_name : str) -> ExecutionResult:
     
+    # Run tests
+    for fixture_name in fixture_manager.fixtures:
+        fixture_func = fixture_manager.get_fixture(fixture_name)
+        if fixture_func.__name__.startswith("setup"):
+            # Run setup fixtures before tests
+            fixture_func()
+    
     sys.path.append(str(pythonpath))
 
     spec = importlib.util.spec_from_file_location(module_filepath.stem, module_filepath)  
@@ -27,9 +35,13 @@ def execute(pythonpath : Path, module_filepath : Path, function_name : str) -> E
     spec.loader.exec_module(test_file) # type:ignore
         
     obj = getattr(test_file, function_name)
-
+    
     if hasattr(obj, "__call__"): 
         try:
+            
+            #args = inspect.getfullargspec(obj).args
+            #print(f"Argument names for {function_name}: {args}")
+            
             result = obj() 
             if result == False: # Fail if the test returns False
                 raise Exception("Test failed, returned False")      

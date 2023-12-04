@@ -1,11 +1,10 @@
 import time
 
-from . import TestUnit, Collector
+from . import Collector
 from .process import BackgroundTest, RuntimeTest
 from .print_helper import *
 
-from .config_file import TestMode, ConfigFile
-
+from .entity import TestUnit, ConfigFile, TestMode
 from pathlib import Path
 
 class TestManager:

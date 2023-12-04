@@ -1,8 +1,8 @@
 
 from pathlib import Path
+from colorama import Fore
 
 from enum import Enum
-
 from dataclasses import dataclass, field
 
 class TestMode(Enum):
@@ -57,3 +57,68 @@ class ConfigFile:
         self.module_list = pyproject_toml.get("module_list", "")
         self.test_mode = TestMode(pyproject_toml.get("test_mode", "background"))
         self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
+
+class TestFile:
+
+    selected_functions : list[str] = []
+    functions_found : list[str] = []
+
+    filepath : Path
+    
+    def __init__(self, filepath, selected_functions = []):
+
+        self.filepath = filepath
+        self.functions_found = self.parse_test_function_names()
+        self.selected_functions = self.load_selected_functions(selected_functions)
+
+    def parse_test_function_names(self):
+
+        functions = []
+
+        with open(self.filepath, "r") as file:
+            lines = file.readlines()
+            for line in lines:
+                if not "def test_" in line:
+                    continue
+                function_name = line.split("def ")[1].split("(")[0]
+                functions.append(function_name)
+        
+        return functions
+    
+    def load_selected_functions(self, selected_functions):
+
+        functions = []
+
+        for function_name in self.functions_found:
+            if not selected_functions or selected_functions == [""]:
+                functions.append(function_name)
+                continue
+            if function_name in selected_functions:
+                functions.append(function_name)
+                continue
+        
+        return functions
+    
+class TestUnit:
+
+    test_file : TestFile
+    function_name : str
+    success : bool
+
+    result_lines : list[str]
+
+    def __init__(self, test_file : TestFile, function_name : str):
+        
+        self.result_lines = []
+        self.test_file = test_file
+        self.function_name = function_name
+        self.success = False
+    
+    def print_log(self):
+        for line in self.result_lines:
+            print(line)
+    
+    def __repr__(self) -> str:
+
+        color = Fore.GREEN if self.success else Fore.RED
+        return f'"{self.test_file.filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{Fore.RESET}'

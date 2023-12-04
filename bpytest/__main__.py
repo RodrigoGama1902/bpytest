@@ -1,7 +1,7 @@
 import argparse
 
 from .test_manager import TestManager
-from .test_manager.config_file import TestMode, ConfigFile
+from .test_manager.entity import TestMode, ConfigFile
 
 from pathlib import Path
 
@@ -38,7 +38,9 @@ def main():
     
     config_file.test_mode = TestMode.BACKGROUND
     config_file.display_output = args.nocapture
-    config_file.selected_functions = [args.keyword,]
+    
+    if args.keyword:
+        config_file.selected_functions = [args.keyword,]
     
     test_manager = TestManager(
             config_file = config_file, 
