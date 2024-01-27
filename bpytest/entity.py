@@ -3,13 +3,15 @@ from pathlib import Path
 from colorama import Fore
 
 from enum import Enum
+
+from typing import Callable
 from dataclasses import dataclass, field
 
 class RunnerType(Enum):
 
     BACKGROUND = "background"
     RUNTIME = "runtime"
-    
+       
 class CollectorString:
     
     collector_string : str
@@ -103,10 +105,17 @@ class TestUnit:
         color = Fore.GREEN if self.success else Fore.RED
         return f'"{self.test_filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{Fore.RESET}'
 
+@dataclass
+class Fixture:
+    
+    name : str
+    scope : str
+    function : Callable
 class TestFile:
 
     filepath : Path
     test_units : list[TestUnit]
+    fixtures : list[Fixture]
     
     def __init__(self, filepath):
 
@@ -127,6 +136,21 @@ class TestFile:
                 test_units.append(TestUnit(self.filepath, function_name))
 
         return test_units
+    
+    def load_fixtures(self):
+        
+        with open(self.filepath, "r") as file:
+            lines = file.readlines()
+            for line in lines:
+                if not "@fixture" in line:
+                    continue
+                
+                fixture_name = line.split("@fixture")[1].split("(")[0].strip()
+                fixture_scope = line.split("(")[1].split(")")[0].strip()
+                
+                self.fixtures.append(Fixture(fixture_name, fixture_scope, None))
+    
+    
         
 
     
