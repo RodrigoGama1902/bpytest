@@ -20,6 +20,7 @@
 
 - [x] Subprocess and same instance process should have the same test 
     logic inside of it, currently they are the same code but in different places.
+- [] When running from blender 3.3 octane all tests passes
 
 # Unit Test System
 
