@@ -3,38 +3,47 @@
 # =============================================================================
 
 import sys
-import bpy #type:ignore
+import bpy  # type:ignore
 import traceback
 
 from pathlib import Path
 
-from bpytest.bpytest.runner import execute
+try:
+    from bpytest.bpytest.runner import execute
+except ModuleNotFoundError:
+    print(
+        f"ModuleNotFoundError: Make sure bpytest is installed in your blender environment. blender_exe: {bpy.app.binary_path}"
+    )
+    sys.exit(1)
 
 for arg in sys.argv:
     if arg.startswith("filepath:"):
-        filepath : Path = Path(arg[9:])
+        filepath: Path = Path(arg[9:])
     if arg.startswith("pythonpath:"):
-        pythonpath : Path = Path(arg[11:])
+        pythonpath: Path = Path(arg[11:])
     if arg.startswith("function_name:"):
-        function_name : str = arg[14:]
+        function_name: str = arg[14:]
     if arg.startswith("module_list:"):
-        module_list : list = arg[12:].split(",")
+        module_list: list = arg[12:].split(",")
 
-def enable_module_list(module_list : list): 
+
+def enable_module_list(module_list: list):
 
     for module in module_list:
         if module.strip() != "":
             bpy.ops.preferences.addon_enable(module=module.strip())
 
+
 def main():
-    
+
     enable_module_list(module_list)
     execution_result = execute(pythonpath, filepath, function_name)
-    
+
     if not execution_result.success:
         print("\n".join(execution_result.result_lines))
         return False
     return True
+
 
 try:
     result = main()
