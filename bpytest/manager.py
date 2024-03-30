@@ -1,52 +1,52 @@
 import time
 
 from .collector import Collector
-from .runner import BackgroundTest, RuntimeTest
+from .entity import BpyTestConfig, CollectorString, RunnerType, TestUnit
+from .fixtures import fixture_manager
 from .print_helper import *
+from .runner import BackgroundTest, RuntimeTest
 
-from .entity import TestUnit, BpyTestConfig, RunnerType, CollectorString
 
 class TestManager:
-    '''Manages the complete test session'''
+    """Manages the complete test session"""
 
-    _collector_string : CollectorString
-    _collector : Collector
-    _finished_tests_list : list[TestUnit]
-    
-    _failed : int
-    _success : int
+    _collector_string: CollectorString
+    _collector: Collector
+    _finished_tests_list: list[TestUnit]
 
-    _total_time : float
+    _failed: int
+    _success: int
+
+    _total_time: float
 
     def __init__(
-            self, 
-            bpytest_config : BpyTestConfig,
-            collector : Collector,
-            ):
-        
+        self,
+        bpytest_config: BpyTestConfig,
+        collector: Collector,
+    ):
+
         self._finished_tests_list = []
-        self._collector = collector  
+        self._collector = collector
         self._bpytest_config = bpytest_config
-    
+
     @property
     def bpytest_config(self) -> BpyTestConfig:
         return self._bpytest_config
-    
+
     @property
     def failed(self) -> int:
         return self._failed
-    
+
     @property
     def success(self) -> int:
         return self._success
-    
+
     @property
     def total_time(self) -> float:
         return self._total_time
-       
-        
+
     def _compute_result(self):
-        '''Computes the result of the test session'''
+        """Computes the result of the test session"""
 
         self._failed = 0
         self._success = 0
@@ -65,24 +65,40 @@ class TestManager:
         center_text = f"Failed: {self._failed} Success: {self._success} in {self._total_time:.2f} seconds"
 
         print_header(center_text, print_color)
-    
-    
+
     def _start_time(self):
-        '''Starts the timer to be used to compute the total time of the test session'''
+        """Starts the timer to be used to compute the total time of the test session"""
         self.start_time = time.time()
 
     def _end_time(self):
-        '''Ends the timer to be used to compute the total time of the test session'''
+        """Ends the timer to be used to compute the total time of the test session"""
         self._total_time = time.time() - self.start_time
 
-    def _run_tests(self, collector : Collector):
-        '''Runs the tests in the collector'''
-        
+    def _run_setup_fixtures(self):
+        """Runs the setup fixtures before the tests"""
+
+        for fixture_name in fixture_manager.fixtures:
+            fixture_func = fixture_manager.get_fixture(fixture_name)
+            if fixture_func.__name__.startswith("setup"):
+                fixture_func()
+
+    def _run_teardown_fixtures(self):
+        """Runs the teardown fixtures after the tests"""
+
+        for fixture_name in fixture_manager.fixtures:
+            fixture_func = fixture_manager.get_fixture(fixture_name)
+            if fixture_func.__name__.startswith("teardown"):
+                # Run teardown fixtures after tests
+                fixture_func()
+
+    def _run_tests(self, collector: Collector):
+        """Runs the tests in the collector"""
+
         self._start_time()
-        
-        
+        self._run_setup_fixtures()
+
         for test_unit in collector.selected:
-            
+
             match self._bpytest_config.runner_type:
                 case RunnerType.BACKGROUND:
                     test_class = BackgroundTest
@@ -90,19 +106,20 @@ class TestManager:
                     test_class = RuntimeTest
 
             test_process = test_class(
-                                    test_unit = test_unit,  
-                                    bpytest_config= self._bpytest_config)
-            
+                test_unit=test_unit, bpytest_config=self._bpytest_config
+            )
+
             result = test_process.execute()
             test_unit.success = result
 
             print(test_unit)
             self._finished_tests_list.append(test_unit)
-        
+
+        self._run_teardown_fixtures()
         self._end_time()
 
     def execute(self) -> None:
-        '''Executes the test session'''
+        """Executes the test session"""
 
         print_header("Test session starts")
         self._run_tests(self._collector)
