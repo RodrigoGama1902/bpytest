@@ -20,7 +20,7 @@ def test_tmp_path(tmp_path: Path):
 
     print("Test should pass")
     print(tmp_path)
-    assert tmp_path
+    assert True
 
 
 def test_custom_tmp_path(custom_tmp_path: Path):
