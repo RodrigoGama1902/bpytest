@@ -28,9 +28,11 @@
 - [x] Subprocess and same instance process should have the same test 
     logic inside of it, currently they are the same code but in different places.
 - [] When running from blender 3.3 octane all tests passes
+- [] Implement exception context ex: with pytest.raises(ValueError) as exc_info:, to except a specific exception
 
 # Unit Test System
 
+- [ ] Implement conftest.py (maybe call another name)
 - [x] Add fixtures (Maybe the collector will collect all fixtures first)
 - [x] Allow add fixtures to receive a fixture name
 - [ ] Implement classes grouping
