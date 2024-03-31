@@ -64,9 +64,8 @@ def main():
     bpytest_config.load_from_pyproject_toml(Path.cwd() / "pyproject.toml")
 
     bpytest_config.runner_type = RunnerType.BACKGROUND
+    bpytest_config.nocapture = args.nocapture
 
-    if args.nocapture is not None:
-        bpytest_config.nocapture = args.nocapture
     if args.keyword is not None:
         bpytest_config.keyword = args.keyword
     if args.collector_string is not None:

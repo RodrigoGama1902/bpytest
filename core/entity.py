@@ -71,7 +71,14 @@ class BpyTestConfig:
     def load_from_dict(self, data: dict[str, Any]):
         """Loads the config from a dict"""
         for key, value in data.items():
-            if hasattr(self, key):
+
+            if value == "True":
+                setattr(self, key, True)
+            elif value == "False":
+                setattr(self, key, False)
+            elif value == "None":
+                setattr(self, key, None)
+            elif hasattr(self, key):
                 field_type = getattr(
                     self.__dataclass_fields__[key], "type", None
                 )

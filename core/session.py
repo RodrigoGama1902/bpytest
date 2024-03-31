@@ -30,7 +30,7 @@ class Session:
     def __init__(self, config: BpyTestConfig):
 
         self.config = config
-        self.session_info = SessionInfo(id=random.randint(0, 1000))
+        self.session_info = SessionInfo(id=random.randint(0, 10000))
 
     def execute(self):
         """Execute the test session"""
