@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import addon_utils
 import bpy
 
 from .entity import BpyTestConfig, SessionInfo, TestUnit
@@ -151,12 +152,31 @@ class BackgroundTest(TestRunner):
         return True
 
 
+def _enable_module_list(module_list: list[str]):
+    """Enables the specified modules in the blender environment"""
+
+    for module in module_list:
+        if module.strip() != "":
+            bpy.ops.preferences.addon_enable(module=module.strip())
+
+
 class RuntimeTest(TestRunner):
     """Runs the test in the current blender process"""
 
-    def _execute(self):
+    def _restore_blender_session(self):
+        """Restores the blender session to the default state"""
 
         bpy.ops.wm.read_factory_settings()
+
+        # Enabling specified modules and bpytest
+        module_list = self._bpytest_config.module_list.split(",")
+        module_list.append("bpytest")
+
+        _enable_module_list(module_list)
+
+    def _execute(self):
+
+        self._restore_blender_session()
 
         execution_result = execute(
             pythonpath=self._pythonpath,

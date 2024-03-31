@@ -4,11 +4,9 @@ import json
 import sys
 import traceback
 
-import addon_utils
 import bpy
 
 try:
-    addon_utils.enable("bpytest")  # type: ignore pylint: disable=no-value-for-parameter
     from bpytest.core.entity import BpyTestConfig
     from bpytest.core.session import wrap_session
 except ModuleNotFoundError:
