@@ -38,6 +38,12 @@ class CollectorString:
 
 
 @dataclass
+class SessionInfo:
+
+    id: int
+
+
+@dataclass
 class BpyTestConfig:
     """Class that represents the configuration of the test session.
 
@@ -64,9 +70,19 @@ class BpyTestConfig:
 
     def load_from_dict(self, data: dict[str, Any]):
         """Loads the config from a dict"""
-
         for key, value in data.items():
-            setattr(self, key, value)
+            if hasattr(self, key):
+                field_type = getattr(
+                    self.__dataclass_fields__[key], "type", None
+                )
+                if field_type is not None:
+                    # Handle special cases, such as Path
+                    if field_type == Path:
+                        setattr(self, key, Path(value))
+                    else:
+                        setattr(self, key, field_type(value))
+                else:
+                    setattr(self, key, value)
 
     def load_from_pyproject_toml(self, pyproject_toml_path: Path):
         """Loads the config file from pyproject.toml"""
@@ -98,7 +114,11 @@ class BpyTestConfig:
         json_data: dict[str, Any] = {}
 
         for key, value in self.__dict__.items():
-            json_data[key] = str(value)
+            # check if is enum
+            if hasattr(value, "value"):
+                json_data[key] = value.value
+            else:
+                json_data[key] = str(value)
 
         return json_data
 

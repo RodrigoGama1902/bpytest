@@ -50,4 +50,6 @@ def tmp_path(request: FixtureRequest) -> Path:
     """Fixture to create a temporary path."""
 
     _delete_old_temp_folders()
-    return _get_test_temp_directory(test_name=request.name, session_id=1)
+    return _get_test_temp_directory(
+        test_name=request.name, session_id=request.session_info.id
+    )

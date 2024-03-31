@@ -1,19 +1,9 @@
-import random
 import time
 
 from .collector import Collector
-from .entity import BpyTestConfig, CollectorString, RunnerType, TestUnit
-from .fixtures import fixture_manager
-from .print_helper import *
-from .runner import BackgroundTest, RuntimeTest
-
-
-class TestSession:
-
-    id: int
-
-    def __init__(self):
-        self.id = random.randint(0, 1000000)
+from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
+from .print_helper import print_failed, print_header
+from .runner import RuntimeTest
 
 
 class TestManager:
@@ -27,18 +17,18 @@ class TestManager:
     _success: int
 
     _total_time: float
-    _session: TestSession
 
     def __init__(
         self,
         bpytest_config: BpyTestConfig,
+        session_info: SessionInfo,
         collector: Collector,
     ):
 
         self._finished_tests_list = []
         self._collector = collector
         self._bpytest_config = bpytest_config
-        self._session = TestSession()
+        self._session_info = session_info
 
     @property
     def bpytest_config(self) -> BpyTestConfig:
@@ -85,22 +75,22 @@ class TestManager:
         """Ends the timer to be used to compute the total time of the test session"""
         self._total_time = time.time() - self.start_time
 
-    def _run_setup_fixtures(self):
-        """Runs the setup fixtures before the tests"""
+    # def _run_setup_fixtures(self):
+    #     """Runs the setup fixtures before the tests"""
 
-        for fixture_name in fixture_manager.fixtures:
-            fixture_func = fixture_manager.get_fixture(fixture_name)
-            if fixture_func.__name__.startswith("setup"):
-                fixture_func()
+    #     for fixture_name in fixture_manager.fixtures:
+    #         fixture_func = fixture_manager.get_fixture(fixture_name)
+    #         if fixture_func.__name__.startswith("setup"):
+    #             fixture_func()
 
-    def _run_teardown_fixtures(self):
-        """Runs the teardown fixtures after the tests"""
+    # def _run_teardown_fixtures(self):
+    #     """Runs the teardown fixtures after the tests"""
 
-        for fixture_name in fixture_manager.fixtures:
-            fixture_func = fixture_manager.get_fixture(fixture_name)
-            if fixture_func.__name__.startswith("teardown"):
-                # Run teardown fixtures after tests
-                fixture_func()
+    #     for fixture_name in fixture_manager.fixtures:
+    #         fixture_func = fixture_manager.get_fixture(fixture_name)
+    #         if fixture_func.__name__.startswith("teardown"):
+    #             # Run teardown fixtures after tests
+    #             fixture_func()
 
     def _run_tests(self, collector: Collector):
         """Runs the tests in the collector"""
@@ -110,14 +100,10 @@ class TestManager:
 
         for test_unit in collector.selected:
 
-            match self._bpytest_config.runner_type:
-                case RunnerType.BACKGROUND:
-                    test_class = BackgroundTest
-                case RunnerType.RUNTIME:
-                    test_class = RuntimeTest
-
             test_process = RuntimeTest(
-                test_unit=test_unit, bpytest_config=self._bpytest_config
+                test_unit=test_unit,
+                bpytest_config=self._bpytest_config,
+                session_info=self._session_info,
             )
 
             result = test_process.execute()

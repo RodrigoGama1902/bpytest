@@ -3,6 +3,8 @@
 import inspect
 from typing import Any, Callable
 
+from .entity import SessionInfo
+
 FixtureValue = Callable[[], Any]
 FixtureFunction = Callable[..., Any]
 
@@ -10,9 +12,10 @@ FixtureFunction = Callable[..., Any]
 class FixtureRequest:
     """Fixture Origin class to store the origin of the fixture."""
 
-    def __init__(self, func: FixtureFunction):
+    def __init__(self, func: FixtureFunction, session_info: SessionInfo):
         self.func = func
         self.name = func.__name__
+        self.session_info = session_info
 
 
 class FixtureManager:

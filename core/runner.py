@@ -11,7 +11,7 @@ from typing import Any
 
 import bpy
 
-from .entity import BpyTestConfig, TestUnit
+from .entity import BpyTestConfig, SessionInfo, TestUnit
 from .fixtures import FixtureRequest, fixture_manager
 
 
@@ -24,7 +24,10 @@ class ExecutionResult:
 
 
 def execute(
-    pythonpath: Path, module_filepath: Path, function_name: str
+    pythonpath: Path,
+    module_filepath: Path,
+    function_name: str,
+    session_info: SessionInfo,
 ) -> ExecutionResult:
 
     sys.path.append(str(pythonpath))
@@ -44,7 +47,7 @@ def execute(
 
             for func_name in func_args:
                 if func_name in fixture_manager.fixtures:
-                    fixture_request = FixtureRequest(obj)
+                    fixture_request = FixtureRequest(obj, session_info)
                     fixture_func = fixture_manager.get_fixture(
                         func_name, fixture_request
                     )
@@ -77,10 +80,12 @@ class TestRunner(ABC):
         self,
         test_unit: TestUnit,
         bpytest_config: BpyTestConfig,
+        session_info: SessionInfo,
     ):
 
         self._test_unit = test_unit
         self._bpytest_config = bpytest_config
+        self._session_info = session_info
         self._nocapture = bpytest_config.nocapture
         self._pythonpath = bpytest_config.pythonpath
 
@@ -157,6 +162,7 @@ class RuntimeTest(TestRunner):
             pythonpath=self._pythonpath,
             module_filepath=self._test_unit.test_filepath,
             function_name=self._test_unit.function_name,
+            session_info=self._session_info,
         )
 
         if not execution_result.success:

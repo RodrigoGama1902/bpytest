@@ -4,7 +4,7 @@ import random
 from typing import Any
 
 from .collector import Collector
-from .entity import BpyTestConfig, CollectorString
+from .entity import BpyTestConfig, CollectorString, SessionInfo
 from .manager import TestManager
 
 
@@ -25,10 +25,12 @@ class Session:
     """Singleton class to store the test session id"""
 
     config: BpyTestConfig
+    session_info: SessionInfo
 
     def __init__(self, config: BpyTestConfig):
-        self.id = random.randint(0, 1000000)
+
         self.config = config
+        self.session_info = SessionInfo(id=random.randint(0, 1000))
 
     def execute(self):
         """Execute the test session"""
@@ -39,7 +41,9 @@ class Session:
         )
 
         test_manager = TestManager(
-            bpytest_config=self.config, collector=collector
+            bpytest_config=self.config,
+            collector=collector,
+            session_info=self.session_info,
         )
         test_manager.execute()
 
