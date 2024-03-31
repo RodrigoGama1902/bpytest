@@ -1,5 +1,4 @@
 import argparse
-import os
 import subprocess
 from pathlib import Path
 
@@ -14,6 +13,7 @@ def _call_subprocess(config: BpyTestConfig) -> bool:
     cmd = [
         config.blender_exe.as_posix(),
         "--background",
+        "--factory-startup",
         "--python",
         generator_filepath.as_posix(),
         "--",

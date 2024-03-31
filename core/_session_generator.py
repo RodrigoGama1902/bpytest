@@ -4,8 +4,19 @@ import json
 import sys
 import traceback
 
-from bpytest.core.entity import BpyTestConfig
-from bpytest.core.session import wrap_session
+import addon_utils
+import bpy
+
+try:
+    addon_utils.enable("bpytest")  # type: ignore pylint: disable=no-value-for-parameter
+    from bpytest.core.entity import BpyTestConfig
+    from bpytest.core.session import wrap_session
+except ModuleNotFoundError:
+    print(
+        "ModuleNotFoundError: Make sure bpytest is installed"
+        f"in your blender environment. blender_exe: {bpy.app.binary_path}",
+    )
+    sys.exit(1)
 
 
 def main(config: BpyTestConfig):
@@ -29,8 +40,6 @@ try:
 
     config = BpyTestConfig()
     config.load_from_dict(data)
-
-    print(config)
 
     main(config)
 except Exception as e:
