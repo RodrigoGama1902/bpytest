@@ -1,3 +1,4 @@
+import random
 import time
 
 from .collector import Collector
@@ -5,6 +6,14 @@ from .entity import BpyTestConfig, CollectorString, RunnerType, TestUnit
 from .fixtures import fixture_manager
 from .print_helper import *
 from .runner import BackgroundTest, RuntimeTest
+
+
+class TestSession:
+
+    id: int
+
+    def __init__(self):
+        self.id = random.randint(0, 1000000)
 
 
 class TestManager:
@@ -18,6 +27,7 @@ class TestManager:
     _success: int
 
     _total_time: float
+    _session: TestSession
 
     def __init__(
         self,
@@ -28,6 +38,7 @@ class TestManager:
         self._finished_tests_list = []
         self._collector = collector
         self._bpytest_config = bpytest_config
+        self._session = TestSession()
 
     @property
     def bpytest_config(self) -> BpyTestConfig:
@@ -95,7 +106,7 @@ class TestManager:
         """Runs the tests in the collector"""
 
         self._start_time()
-        self._run_setup_fixtures()
+        # self._run_setup_fixtures()
 
         for test_unit in collector.selected:
 
@@ -115,7 +126,7 @@ class TestManager:
             print(test_unit)
             self._finished_tests_list.append(test_unit)
 
-        self._run_teardown_fixtures()
+        # self._run_teardown_fixtures()
         self._end_time()
 
     def execute(self) -> None:

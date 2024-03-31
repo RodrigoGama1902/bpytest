@@ -3,13 +3,13 @@
 # =============================================================================
 
 import sys
-import bpy  # type:ignore
 import traceback
-
 from pathlib import Path
 
+import bpy
+
 try:
-    from bpytest.bpytest.runner import execute
+    from bpytest.core.runner import execute
 except ModuleNotFoundError:
     print(
         f"ModuleNotFoundError: Make sure bpytest is installed in your blender environment. blender_exe: {bpy.app.binary_path}"

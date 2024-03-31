@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any
 
 from .entity import BpyTestConfig, TestUnit
-from .fixtures import fixture_manager
+from .fixtures import FixtureRequest, fixture_manager
+from .session import session
 
 
 @dataclass
@@ -37,13 +38,15 @@ def execute(
 
     if hasattr(obj, "__call__"):
         try:
-
             func_args = inspect.getfullargspec(obj).args
             args_to_pass: list[Any] = []
 
-            for arg in func_args:
-                if arg in fixture_manager.fixtures:
-                    fixture_func = fixture_manager.get_fixture(arg)
+            for func_name in func_args:
+                if func_name in fixture_manager.fixtures:
+                    fixture_request = FixtureRequest(obj, session)
+                    fixture_func = fixture_manager.get_fixture(
+                        func_name, fixture_request
+                    )
                     args_to_pass.append(fixture_func())
 
             result = obj(*args_to_pass)
