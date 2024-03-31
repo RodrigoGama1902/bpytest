@@ -1,10 +1,8 @@
 import importlib.util
 import inspect
 import os
-import subprocess
 import sys
 import traceback
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -45,6 +43,7 @@ def execute(
     session_info: SessionInfo,
     config: BpyTestConfig,
 ) -> ExecutionResult:
+    """Executes the test function and returns the result"""
 
     sys.path.append(str(pythonpath))
 
@@ -70,17 +69,27 @@ def execute(
                     args_to_pass.append(fixture_func())
 
             result = obj(*args_to_pass)
-            if result == False:  # Fail if the test returns False
-                raise Exception("Test failed, returned False")
+            if result is False:  # Fail if the test returns False
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    "Test failed, returned False"
+                )
             return ExecutionResult(True)
-        except:
+        except:  # pylint: disable=bare-except
             return ExecutionResult(False, [traceback.format_exc()])
 
     return ExecutionResult(True)
 
 
-class TestRunner(ABC):
-    """Abstract class that defines the test process execution. The execution
+def _enable_module_list(module_list: list[str]):
+    """Enables the specified modules in the blender environment"""
+
+    for module in module_list:
+        if module.strip() != "":
+            bpy.ops.preferences.addon_enable(module=module.strip())
+
+
+class TestRunner:
+    """Test process execution. The execution
     consists in running the test in a subprocess or in the current blender process.
 
     In the execution of the test, the correct test function is called and the result is
@@ -115,59 +124,6 @@ class TestRunner(ABC):
             result = self._execute()
 
         return result
-
-    @abstractmethod
-    def _execute(self) -> bool:
-        """Executes the test and returns the result"""
-
-
-class BackgroundTest(TestRunner):
-    """Runs the test in a subprocess in a different blender process"""
-
-    def _execute(self) -> bool:
-
-        generator_filepath = (
-            Path(__file__).parent / "_runner_blender_script.py"
-        )
-
-        cmd = [
-            self._bpytest_config.blender_exe.as_posix(),
-            "--background",
-            "--python",
-            generator_filepath.__str__(),
-            "--",
-            "filepath:" + self._test_unit.test_filepath.__str__(),
-            "pythonpath:" + self._pythonpath.__str__(),
-            "function_name:" + self._test_unit.function_name,
-            "module_list:" + self._bpytest_config.module_list,
-        ]
-
-        result = subprocess.run(
-            cmd,
-            check=False,
-            stdout=open(os.devnull, "w") if not self._nocapture else None,
-            stderr=subprocess.PIPE,
-        )
-
-        if result.returncode != 0:
-            self._test_unit.result_lines.append(
-                "Error: " + result.stderr.decode("utf-8")
-            )
-            return False
-
-        return True
-
-
-def _enable_module_list(module_list: list[str]):
-    """Enables the specified modules in the blender environment"""
-
-    for module in module_list:
-        if module.strip() != "":
-            bpy.ops.preferences.addon_enable(module=module.strip())
-
-
-class RuntimeTest(TestRunner):
-    """Runs the test in the current blender process"""
 
     def _restore_blender_session(self):
         """Restores the blender session to the default state"""

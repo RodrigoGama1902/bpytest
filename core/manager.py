@@ -3,7 +3,7 @@ import time
 from .collector import Collector
 from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
 from .print_helper import print_failed, print_header
-from .runner import RuntimeTest
+from .runner import TestRunner
 
 
 class TestManager:
@@ -100,7 +100,7 @@ class TestManager:
 
         for test_unit in collector.selected:
 
-            test_process = RuntimeTest(
+            test_process = TestRunner(
                 test_unit=test_unit,
                 bpytest_config=self._bpytest_config,
                 session_info=self._session_info,

@@ -169,7 +169,7 @@ class TestFile:
     filepath: Path
     test_units: list[TestUnit]
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: Path):
 
         self.filepath = filepath
         self.test_units = self.parse_test_units()
