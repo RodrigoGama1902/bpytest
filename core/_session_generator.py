@@ -7,6 +7,7 @@ import traceback
 import bpy
 
 try:
+    bpy.ops.preferences.addon_enable(module="bpytest")
     from bpytest.core.entity import BpyTestConfig
     from bpytest.core.session import wrap_session
 except ModuleNotFoundError:

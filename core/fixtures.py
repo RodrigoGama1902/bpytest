@@ -3,7 +3,7 @@
 import inspect
 from typing import Any, Callable
 
-from .entity import SessionInfo
+from .entity import BpyTestConfig, SessionInfo
 
 FixtureValue = Callable[[], Any]
 FixtureFunction = Callable[..., Any]
@@ -12,10 +12,16 @@ FixtureFunction = Callable[..., Any]
 class FixtureRequest:
     """Fixture Origin class to store the origin of the fixture."""
 
-    def __init__(self, func: FixtureFunction, session_info: SessionInfo):
+    def __init__(
+        self,
+        func: FixtureFunction,
+        session_info: SessionInfo,
+        config: BpyTestConfig,
+    ):
         self.func = func
         self.name = func.__name__
         self.session_info = session_info
+        self.config = config
 
 
 class FixtureManager:
@@ -52,6 +58,15 @@ class FixtureManager:
             raise ValueError(f"Fixture '{name}' not registered.")
 
         original_func = self.fixtures[name]
+        for fixture_name in inspect.signature(original_func).parameters:
+            if fixture_name == "request":
+                continue
+            if fixture_name in self.fixtures:
+                request = FixtureRequest(
+                    original_func, request.session_info, request.config
+                )
+                original_func = self.get_fixture(fixture_name, request)
+
         return self._create_fixture(original_func, request)
 
 

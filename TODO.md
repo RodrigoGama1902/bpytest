@@ -7,12 +7,13 @@
 # Blender Interface
 
 - [ ] Add a UI list that allows to [maybe one or more] addons to test
-- [ ] add all pyproject.toml config to Blender UI
+- [x] add all pyproject.toml config to Blender UI
     collector string, keyword, -s, runner_type
 
 # CLI
 
 - [x] Add command line interface
+- [ ] Fix the CLI output, even with -s it is still showing print lines on saving a blender file
 - [ ] #parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
 - [ ] #parser.add_argument('-x', '--exitfirst', action='store_true', help='Exit instantly on first error or failed test')
 
@@ -24,12 +25,13 @@
 
 # Unit Test System
 
-- [ ] Add fixtures (Maybe the collector will collect all fixtures first)
+- [x] Add fixtures (Maybe the collector will collect all fixtures first)
+- [x] Allow add fixtures to receive a fixture name
 - [ ] Implement classes grouping
 
 # Distribution
 
-- [ ] Currently, the add-on and the package are the same things, 
+- [x] Currently, the add-on and the package are the same things, 
     which lead to some problems like strange imports like "from bpytest.bpytest.runner import execute"
 - [ ] Add pip distribution
 

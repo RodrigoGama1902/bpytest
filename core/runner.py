@@ -43,6 +43,7 @@ def execute(
     module_filepath: Path,
     function_name: str,
     session_info: SessionInfo,
+    config: BpyTestConfig,
 ) -> ExecutionResult:
 
     sys.path.append(str(pythonpath))
@@ -62,7 +63,7 @@ def execute(
 
             for func_name in func_args:
                 if func_name in fixture_manager.fixtures:
-                    fixture_request = FixtureRequest(obj, session_info)
+                    fixture_request = FixtureRequest(obj, session_info, config)
                     fixture_func = fixture_manager.get_fixture(
                         func_name, fixture_request
                     )
@@ -188,6 +189,7 @@ class RuntimeTest(TestRunner):
             module_filepath=self._test_unit.test_filepath,
             function_name=self._test_unit.function_name,
             session_info=self._session_info,
+            config=self._bpytest_config,
         )
 
         if not execution_result.success:
