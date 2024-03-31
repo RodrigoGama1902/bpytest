@@ -116,7 +116,7 @@ class TestManager:
                 case RunnerType.RUNTIME:
                     test_class = RuntimeTest
 
-            test_process = test_class(
+            test_process = RuntimeTest(
                 test_unit=test_unit, bpytest_config=self._bpytest_config
             )
 

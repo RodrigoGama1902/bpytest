@@ -9,9 +9,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import bpy
+
 from .entity import BpyTestConfig, TestUnit
 from .fixtures import FixtureRequest, fixture_manager
-from .session import session
 
 
 @dataclass
@@ -43,7 +44,7 @@ def execute(
 
             for func_name in func_args:
                 if func_name in fixture_manager.fixtures:
-                    fixture_request = FixtureRequest(obj, session)
+                    fixture_request = FixtureRequest(obj)
                     fixture_func = fixture_manager.get_fixture(
                         func_name, fixture_request
                     )
@@ -149,6 +150,8 @@ class RuntimeTest(TestRunner):
     """Runs the test in the current blender process"""
 
     def _execute(self):
+
+        bpy.ops.wm.read_factory_settings()
 
         execution_result = execute(
             pythonpath=self._pythonpath,

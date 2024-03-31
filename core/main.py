@@ -1,12 +1,48 @@
 import argparse
+import os
+import subprocess
 from pathlib import Path
 
-from .collector import Collector
-from .entity import BpyTestConfig, CollectorString, RunnerType
-from .manager import TestManager
+from .entity import BpyTestConfig, RunnerType
+
+
+def _call_subprocess(config: BpyTestConfig) -> bool:
+    """Call the subprocess to execute the test session"""
+
+    generator_filepath = Path(__file__).parent / "_session_generator.py"
+
+    cmd = [
+        config.blender_exe.as_posix(),
+        "--background",
+        "--python",
+        generator_filepath.as_posix(),
+        "--",
+        "config=" + config.as_json(),
+    ]
+
+    result = subprocess.run(
+        cmd,
+        check=False,
+        stdout=(
+            open(os.devnull, "w", encoding="utf-8")
+            if not config.nocapture
+            else None
+        ),
+        stderr=subprocess.PIPE,
+    )
+
+    if result.returncode != 0:
+        # self._test_unit.result_lines.append(
+        #     "Error: " + result.stderr.decode("utf-8")
+        # )
+        return False
+
+    return True
 
 
 def main():
+    """Main function"""
+
     parser = argparse.ArgumentParser(description="Simple test runner")
 
     # Positional argument for the test file or directory
@@ -29,22 +65,13 @@ def main():
 
     args = parser.parse_args()
 
-    collector = Collector(
-        collector_string=CollectorString(args.collector_string),
-        keyword=args.keyword,
-    )
-
     bpytest_config = BpyTestConfig()
     bpytest_config.load_from_pyproject_toml(Path.cwd() / "pyproject.toml")
 
     bpytest_config.runner_type = RunnerType.BACKGROUND
     bpytest_config.nocapture = args.nocapture
 
-    test_manager = TestManager(
-        bpytest_config=bpytest_config, collector=collector
-    )
-
-    test_manager.execute()
+    _call_subprocess(bpytest_config)
 
 
 if __name__ == "__main__":

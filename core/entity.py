@@ -1,7 +1,8 @@
+import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Callable
+from typing import Any
 
 from colorama import Fore
 
@@ -58,6 +59,15 @@ class BpyTestConfig:
     runner_type: RunnerType = field(default=RunnerType.BACKGROUND)
     blender_exe: Path = field(default=Path.cwd())
 
+    collector_string: str = field(default="")
+    keyword: str = field(default="")
+
+    def load_from_dict(self, data: dict[str, Any]):
+        """Loads the config from a dict"""
+
+        for key, value in data.items():
+            setattr(self, key, value)
+
     def load_from_pyproject_toml(self, pyproject_toml_path: Path):
         """Loads the config file from pyproject.toml"""
 
@@ -81,6 +91,21 @@ class BpyTestConfig:
             pyproject_toml.get("runner_type", "background")
         )
         self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
+
+    def as_dict(self) -> dict[str, Any]:
+        """Returns the config as a json"""
+
+        json_data: dict[str, Any] = {}
+
+        for key, value in self.__dict__.items():
+            json_data[key] = str(value)
+
+        return json_data
+
+    def as_json(self) -> str:
+        """Returns the config as a json"""
+
+        return json.dumps(self.as_dict())
 
 
 class TestUnit:
