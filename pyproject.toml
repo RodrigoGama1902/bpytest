@@ -19,6 +19,11 @@ extraPaths = [
     "..",
 ]
 
+[tool.pytest.ini_options]
+addopts = ["-p", "no:warnings"]
+norecursedirs = ["tests/fixtures/*"]
+
+
 [tool.bpytest]
 runner_type="runtime"
 pythonpath=""
@@ -27,5 +32,6 @@ nocapture=true
 toggle_console=true
 raise_error=false
 blender_exe="C:/Program Files/Blender Foundation/Blender 4.0/blender.exe"
+norecursedirs = ["tests/unit/*"]
 
 

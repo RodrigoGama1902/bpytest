@@ -64,6 +64,7 @@ class BpyTestConfig:
     module_list: str = field(default="")
     runner_type: RunnerType = field(default=RunnerType.BACKGROUND)
     blender_exe: Path = field(default=Path.cwd())
+    norecursedirs: list[str] = field(default_factory=list)
 
     collector_string: str = field(default="")
     keyword: str = field(default="")
@@ -78,6 +79,11 @@ class BpyTestConfig:
                 setattr(self, key, False)
             elif value == "None":
                 setattr(self, key, None)
+            elif value.startswith("[") and value.endswith("]"):
+                value = value[1:-1].split(",")
+                for idx, i in enumerate(value):
+                    value[idx] = i.replace("'", "").strip()
+                setattr(self, key, value)
             elif hasattr(self, key):
                 field_type = getattr(
                     self.__dataclass_fields__[key], "type", None
@@ -110,6 +116,7 @@ class BpyTestConfig:
         self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error", False)
         self.module_list = pyproject_toml.get("module_list", "")
+        self.norecursedirs = pyproject_toml.get("norecursedirs", [])
         self.runner_type = RunnerType(
             pyproject_toml.get("runner_type", "background")
         )

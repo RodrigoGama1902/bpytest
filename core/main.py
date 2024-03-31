@@ -1,11 +1,13 @@
 import argparse
 import subprocess
+import sys
 from pathlib import Path
 
 from .entity import BpyTestConfig, RunnerType
+from .types import ExitCode
 
 
-def _call_subprocess(config: BpyTestConfig) -> bool:
+def _call_subprocess(config: BpyTestConfig) -> ExitCode:
     """Call the subprocess to execute the test session"""
 
     generator_filepath = Path(__file__).parent / "_session_generator.py"
@@ -26,16 +28,10 @@ def _call_subprocess(config: BpyTestConfig) -> bool:
         stderr=subprocess.PIPE,
     )
 
-    if result.returncode != 0:
-        # self._test_unit.result_lines.append(
-        #     "Error: " + result.stderr.decode("utf-8")
-        # )
-        return False
-
-    return True
+    return result.returncode
 
 
-def main():
+def main() -> None:
     """Main function"""
 
     parser = argparse.ArgumentParser(description="Simple test runner")
@@ -71,7 +67,7 @@ def main():
     if args.collector_string is not None:
         bpytest_config.collector_string = args.collector_string
 
-    _call_subprocess(bpytest_config)
+    sys.exit(_call_subprocess(bpytest_config))
 
 
 if __name__ == "__main__":

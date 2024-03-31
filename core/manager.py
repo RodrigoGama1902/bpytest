@@ -4,6 +4,7 @@ from .collector import Collector
 from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
 from .print_helper import print_failed, print_header
 from .runner import TestRunner
+from .types import ExitCode
 
 
 class TestManager:
@@ -115,7 +116,7 @@ class TestManager:
         # self._run_teardown_fixtures()
         self._end_time()
 
-    def execute(self) -> None:
+    def execute(self) -> ExitCode:
         """Executes the test session"""
 
         print_header("Test session starts")
@@ -123,3 +124,8 @@ class TestManager:
 
         print_failed(self._finished_tests_list)
         self._compute_result()
+
+        if self._failed:
+            return 1
+
+        return 0

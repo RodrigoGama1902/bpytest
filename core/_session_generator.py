@@ -21,7 +21,7 @@ except ModuleNotFoundError:
 def main(config: BpyTestConfig):
     """Main function"""
 
-    wrap_session(config)
+    sys.exit(wrap_session(config))
 
 
 try:

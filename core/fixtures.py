@@ -30,6 +30,7 @@ class FixtureManager:
     fixtures: dict[str, Callable[[], Any]]
 
     def __init__(self):
+
         self.fixtures = {}
 
     def register_fixture(self, name: str, fixture_func: Callable[[], Any]):
