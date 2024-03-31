@@ -4,6 +4,10 @@
 - [ ] Create a readme.md file
 - [ ] Write better documentation
 
+# General codebase
+
+- [ ] Fix all type issues
+
 # Blender Add-on
 
 - [ ] Re-design the UI
