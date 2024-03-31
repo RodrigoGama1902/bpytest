@@ -9,11 +9,25 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-import addon_utils
 import bpy
 
 from .entity import BpyTestConfig, SessionInfo, TestUnit
 from .fixtures import FixtureRequest, fixture_manager
+
+
+class BlockStandardOutput:
+    """Context manager to block the standard output"""
+
+    def __enter__(self):
+        self._stdout = (  # pylint: disable=attribute-defined-outside-init
+            sys.__stdout__
+        )
+        sys.stdout = open(os.devnull, "w", encoding="utf-8")
+        return self
+
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> Any:
+        sys.stdout.close()
+        sys.stdout = self._stdout
 
 
 @dataclass
@@ -90,23 +104,14 @@ class TestRunner(ABC):
         self._nocapture = bpytest_config.nocapture
         self._pythonpath = bpytest_config.pythonpath
 
-    def _block_standard_output(self):
-        """Blocks the print function if nocapture is False"""
-        if not self._nocapture:
-            sys.stdout = open(os.devnull, "w")
-
-    def _restore_standard_output(self):
-        """Enables the print function if nocapture is False"""
-
-        if not self._nocapture:
-            sys.stdout = sys.__stdout__
-
     def execute(self) -> bool:
         """Executes the test and returns the result"""
 
-        self._block_standard_output()
-        result = self._execute()
-        self._restore_standard_output()
+        if not self._nocapture:
+            with BlockStandardOutput():
+                result = self._execute()
+        else:
+            result = self._execute()
 
         return result
 

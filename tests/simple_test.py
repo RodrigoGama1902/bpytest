@@ -65,3 +65,12 @@ def test_blender_object_fixture(blender_object: bpy.types.Object):
     print("Test should pass")
     print(blender_object)
     assert blender_object
+
+
+def test_save_file(tmp_path: Path):
+    """Test the save file fixture"""
+    print("Test should pass")
+    blend_path = tmp_path / "test.blend"
+    bpy.ops.wm.save_as_mainfile(filepath=blend_path.as_posix())
+
+    assert blend_path.exists()
