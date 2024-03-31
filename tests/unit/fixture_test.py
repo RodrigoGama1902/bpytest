@@ -1,0 +1,22 @@
+from conftest import BPY_TEST_FILES, assert_execute_test_unit
+
+
+def test_built_in_fixture():
+
+    assert_execute_test_unit(
+        True, BPY_TEST_FILES / "fixture_test.py", "test_built_in_fixture"
+    )
+
+
+def test_custom_fixture():
+
+    assert_execute_test_unit(
+        True, BPY_TEST_FILES / "fixture_test.py", "test_custom_fixture"
+    )
+
+
+def test_blender_object_fixture():
+
+    assert_execute_test_unit(
+        True, BPY_TEST_FILES / "fixture_test.py", "test_blender_object_fixture"
+    )

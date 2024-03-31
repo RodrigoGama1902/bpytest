@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import bpy
+
 import bpytest
 
 
@@ -25,19 +27,18 @@ def test_tmp_path(tmp_path: Path):
 
 def test_custom_tmp_path(custom_tmp_path: Path):
     """Test the custom fixture based on tmp_path fixture"""
-
-    print("Test should pass")
-    print(custom_tmp_path)
-
     assert custom_tmp_path.exists()
 
 
 def test_multiple_tmp_path_fixtures(tmp_path: Path, custom_tmp_path: Path):
     """Test multiple tmp_path fixtures"""
-
-    print("Test should pass")
-    print(tmp_path)
-    print(custom_tmp_path)
-
     assert tmp_path.exists()
     assert custom_tmp_path.exists()
+
+
+def test_save_file(tmp_path: Path):
+    """Test the save file fixture"""
+    blend_path = tmp_path / "test.blend"
+    bpy.ops.wm.save_as_mainfile(filepath=blend_path.as_posix())
+
+    assert blend_path.exists()

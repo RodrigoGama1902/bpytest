@@ -1,5 +1,3 @@
-"""Bpy test file with simple tests"""
-
 from pathlib import Path
 
 import bpy
@@ -18,32 +16,6 @@ def blender_object():
     """Fixture to create a blender object"""
     bpy.ops.mesh.primitive_cube_add()
     return bpy.context.object
-
-
-def test_simple_print():
-    """Test a simple print statement"""
-    print("Test should pass")
-
-
-def test_failed():
-    """Test a failed test"""
-    print("Test Should fail")
-    assert False
-
-
-def test_failed_with_false():
-    """Test a failed test with False"""
-    print("Test Should fail")
-    return False
-
-
-def test_cube_creation():
-    """Test cube creation"""
-    print("Test should pass")
-
-    bpy.ops.mesh.primitive_cube_add()
-    cube = bpy.context.object
-    assert cube
 
 
 def test_built_in_fixture(tmp_path: Path):
@@ -65,12 +37,3 @@ def test_blender_object_fixture(blender_object: bpy.types.Object):
     print("Test should pass")
     print(blender_object)
     assert blender_object
-
-
-def test_save_file(tmp_path: Path):
-    """Test the save file fixture"""
-    print("Test should pass")
-    blend_path = tmp_path / "test.blend"
-    bpy.ops.wm.save_as_mainfile(filepath=blend_path.as_posix())
-
-    assert blend_path.exists()

@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-BPY_TEST_FILES = Path("tests/fixtures/test_files")
+BPY_TEST_FILES = Path("tests/fixtures/bpytest_files")
 
 
 def assert_execute_test_unit(
