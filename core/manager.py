@@ -1,6 +1,7 @@
+import importlib.util
 import time
 
-from .collector import Collector
+from .collector import Collector, collect_conftest_files
 from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
 from .print_helper import print_failed, print_header
 from .runner import TestRunner
@@ -93,10 +94,23 @@ class TestManager:
     #             # Run teardown fixtures after tests
     #             fixture_func()
 
+    def _register_conftest_files(self):
+        """Registers the fixtures from conftest files"""
+
+        conftest_files = collect_conftest_files(
+            self.bpytest_config.pythonpath, self.bpytest_config.norecursedirs
+        )
+        for file in conftest_files:
+            spec = importlib.util.spec_from_file_location(file.stem, file)
+            test_file = importlib.util.module_from_spec(spec)  # type:ignore
+            spec.loader.exec_module(test_file)  # type:ignore
+
     def _run_tests(self, collector: Collector):
         """Runs the tests in the collector"""
 
         self._start_time()
+
+        self._register_conftest_files()
         # self._run_setup_fixtures()
 
         for test_unit in collector.selected:

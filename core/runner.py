@@ -10,6 +10,7 @@ from typing import Any
 import bpy
 
 from .entity import BpyTestConfig, SessionInfo, TestUnit
+from .exception import InvalidFixtureName
 from .fixtures import FixtureRequest, fixture_manager
 
 
@@ -68,7 +69,12 @@ def execute(
                     )
                     args_to_pass.append(fixture_func())
 
-            result = obj(*args_to_pass)
+            try:
+                result = obj(*args_to_pass)
+            except TypeError as e:
+                print(str(e))
+                raise InvalidFixtureName(function_name) from e
+
             if result is False:  # Fail if the test returns False
                 raise Exception(  # pylint: disable=broad-exception-raised
                     "Test failed, returned False"

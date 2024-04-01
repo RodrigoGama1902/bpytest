@@ -20,3 +20,18 @@ def test_blender_object_fixture():
     assert_execute_test_unit(
         True, BPY_TEST_FILES / "fixture_test.py", "test_blender_object_fixture"
     )
+
+
+def test_invalid_fixture():
+    """Test the invalid fixture, should fail"""
+
+    assert_execute_test_unit(
+        False, BPY_TEST_FILES / "fixture_test.py", "test_invalid_fixture"
+    )
+
+
+def test_conftest_fixture():
+    """Test the conftest fixture, should pass"""
+    assert_execute_test_unit(
+        True, BPY_TEST_FILES / "fixture_test.py", "test_conftest_fixture"
+    )

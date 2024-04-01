@@ -31,3 +31,13 @@ def test_custom_fixture(custom_fixture: str):
 def test_blender_object_fixture(blender_object: bpy.types.Object):
     """Test the custom fixture, should pass"""
     assert blender_object
+
+
+def test_invalid_fixture(invalid_fixture_name: str):
+    """Test the invalid fixture, should fail"""
+    assert invalid_fixture_name == "invalid_fixture_value"
+
+
+def test_conftest_fixture(conftest_fixture: str):
+    """Test the conftest fixture, should pass"""
+    assert conftest_fixture == "conftest_fixture"

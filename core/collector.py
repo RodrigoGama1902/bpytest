@@ -18,6 +18,37 @@ IGNORE_DIRS: list[str] = [
 ]
 
 
+def collect_conftest_files(
+    path: Path, norecursedirs: list[str] = []
+) -> list[Path]:
+    """Collect all conftest.py files in the given path."""
+    conftest_files = []
+
+    for file_path in path.glob("**/conftest.py"):
+        file_name = file_path.name
+
+        # Check if the file path matches any pattern in norecursedirs
+        skip_file = False
+        for pattern in norecursedirs:
+            if fnmatch.fnmatch(
+                file_path.relative_to(Path.cwd()).as_posix(), pattern
+            ):
+                skip_file = True
+                break
+
+        if skip_file:
+            continue
+
+        if not file_path.is_file():
+            continue
+        if not file_name.endswith(".py"):
+            continue
+
+        conftest_files.append(file_path)
+
+    return conftest_files
+
+
 class Collector:
 
     test_files: list[TestFile] = []

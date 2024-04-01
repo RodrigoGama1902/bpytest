@@ -36,6 +36,7 @@ class FixtureManager:
     def register_fixture(self, name: str, fixture_func: Callable[[], Any]):
         """Register a fixture function."""
 
+        print(f"Registering fixture: {name}")
         self.fixtures[name] = fixture_func
 
     def _create_fixture(
