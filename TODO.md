@@ -32,7 +32,7 @@
 
 # Unit Test System
 
-- [ ] Implement conftest.py (provide fixtures for an entire directory)
+- [x] Implement simple fixture registering from conftest.py
 - [ ] Implement definition scope of fixtures (module, package (fixtures defined in the conftest.py) )
 - [ ] Implement fixtures scope (function, class, module, package)
 - [x] Add fixtures (Maybe the collector will collect all fixtures first)
