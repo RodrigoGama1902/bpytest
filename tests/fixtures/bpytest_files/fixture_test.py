@@ -19,21 +19,15 @@ def blender_object():
 
 
 def test_built_in_fixture(tmp_path: Path):
-    """Test the built-in fixture"""
+    """Test the built-in fixture, should pass"""
     assert tmp_path
 
 
 def test_custom_fixture(custom_fixture: str):
-    """Test the custom fixture"""
-
-    print("Test should pass")
-    print(custom_fixture)
+    """Test the custom fixture, should pass"""
     assert custom_fixture == "custom_fixture_value"
 
 
 def test_blender_object_fixture(blender_object: bpy.types.Object):
-    """Test the custom fixture"""
-
-    print("Test should pass")
-    print(blender_object)
+    """Test the custom fixture, should pass"""
     assert blender_object
