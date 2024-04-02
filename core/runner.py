@@ -1,5 +1,4 @@
 import importlib.util
-import inspect
 import os
 import sys
 import traceback
@@ -11,7 +10,7 @@ import bpy
 
 from .entity import BpyTestConfig, SessionInfo, TestUnit
 from .exception import InvalidFixtureName
-from .fixtures import FixtureRequest, execute_finalize_request, fixture_manager
+from .fixtures import execute_finalize_request, inspect_func_for_fixtures
 
 
 class BlockStandardOutput:
@@ -58,29 +57,9 @@ def execute(
 
     if hasattr(obj, "__call__"):
         try:
-            args_to_pass: list[Any] = []
-            fixture_requests: list[FixtureRequest] = []
-
-            # Search for fixtures in the function arguments
-            for arg_name in inspect.getfullargspec(obj).args:
-                if not arg_name in fixture_manager.fixtures:
-                    continue
-
-                fixture_request = FixtureRequest(
-                    func=obj,
-                    fixturename=arg_name,
-                    session_info=session_info,
-                    config=config,
-                )
-
-                fixture_func, fixture_teardown = fixture_manager.get_fixture(
-                    arg_name, fixture_request
-                )
-                args_to_pass.append(fixture_func)
-
-                fixture_request.finalizer = fixture_teardown
-                fixture_requests.append(fixture_request)
-
+            fixture_requests, args_to_pass = inspect_func_for_fixtures(
+                obj, session_info, config
+            )
             try:
                 result = obj(*args_to_pass)
             except TypeError as e:

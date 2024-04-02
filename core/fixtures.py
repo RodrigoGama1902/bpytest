@@ -69,6 +69,40 @@ def _teardown_yield_fixture(
         ) from None
 
 
+def inspect_func_for_fixtures(
+    func: Callable[..., Any], session_info: SessionInfo, config: BpyTestConfig
+) -> tuple[list["FixtureRequest"], list[FixtureValue]]:
+    """Inspect a function for fixtures and return the fixture names found."""
+
+    fixture_requests: list["FixtureRequest"] = []
+    fixture_values: list[Any] = []
+
+    for arg_name in inspect.getfullargspec(func).args:
+        # Skip the iternal request argument since it's already passed
+        # when creating the wrapped fixture
+        if arg_name == "request":
+            continue
+        if not arg_name in fixture_manager.fixtures:
+            continue
+
+        fixture_request = FixtureRequest(
+            func=func,
+            fixturename=arg_name,
+            session_info=session_info,
+            config=config,
+        )
+
+        fixture_func, fixture_teardown = fixture_manager.get_fixture(
+            arg_name, fixture_request
+        )
+        fixture_values.append(fixture_func)
+
+        fixture_request.finalizer = fixture_teardown
+        fixture_requests.append(fixture_request)
+
+    return fixture_requests, fixture_values
+
+
 class FixtureRequest:
     """Fixture Origin class to store the origin of the fixture."""
 
@@ -142,33 +176,12 @@ class FixtureManager:
         fixture_func = self.fixtures[name]
         fixture_agrs: list[FixtureValue] = []
 
-        # Search for fixtures in the fixture arguments
-        for fixture_arg_name in inspect.signature(fixture_func).parameters:
-            # Skip the iternal request argument since it's already passed
-            # when creating the wrapped fixture
-            if fixture_arg_name == "request":
-                continue
-            if not fixture_arg_name in self.fixtures:
-                continue
+        # Inspect the fixture function for fixtures recursively if there are any
+        child_requests, fixture_agrs = inspect_func_for_fixtures(
+            fixture_func, request.session_info, request.config
+        )
 
-            fixture_arg_request = FixtureRequest(
-                func=fixture_func,
-                fixturename=fixture_arg_name,
-                session_info=request.session_info,
-                config=request.config,
-            )
-
-            # recursively get the fixture arguments, and their teardown
-            # functions if they have any
-            fixture_arg_func, fixture_arg_teardown = self.get_fixture(
-                fixture_arg_name, fixture_arg_request
-            )
-
-            fixture_agrs.append(fixture_arg_func)
-
-            fixture_arg_request.finalizer = fixture_arg_teardown
-            request.child_requests.append(fixture_arg_request)
-
+        request.child_requests.extend(child_requests)
         wrapped_fixture_func = self._create_wrapped_fixture(
             fixture_func, request
         )
