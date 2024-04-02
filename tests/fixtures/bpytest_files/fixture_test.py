@@ -18,6 +18,44 @@ def blender_object():
     return bpy.context.object
 
 
+@bpytest.fixture
+def yield_fixture():
+    """Yield fixture"""
+
+    print("[yield][setup][yield_fixture]")
+    yield
+    print("[yield][teardown][yield_fixture]")
+
+
+@bpytest.fixture
+def second_yield_fixture():
+    """Second yield fixture"""
+
+    print("[yield][setup][second_yield_fixture]")
+    yield
+    print("[yield][teardown][second_yield_fixture]")
+
+
+@bpytest.fixture
+def yield_fixture_fixture(yield_fixture: str):
+    """Yield fixture with yield fixture"""
+
+    print("[yield][setup][yield_fixture_fixture]")
+    yield
+    print("[yield][teardown][yield_fixture_fixture]")
+
+
+@bpytest.fixture
+def yield_fixture_fixture_fixture(
+    yield_fixture_fixture: str,
+):
+    """Yield fixture with yield fixture with yield fixture"""
+
+    print("[yield][setup][yield_fixture_fixture_fixture]")
+    yield
+    print("[yield][teardown][yield_fixture_fixture_fixture]")
+
+
 def test_built_in_fixture(tmp_path: Path):
     """Test the built-in fixture, should pass"""
     assert tmp_path
@@ -41,3 +79,38 @@ def test_invalid_fixture(invalid_fixture_name: str):
 def test_conftest_fixture(conftest_fixture: str):
     """Test the conftest fixture, should pass"""
     assert conftest_fixture == "conftest_fixture"
+
+
+def test_multiple_fixtures(
+    custom_fixture: str, blender_object: bpy.types.Object
+):
+    """Test the multiple fixtures, should pass"""
+
+    assert custom_fixture == "custom_fixture_value"
+    assert blender_object
+
+
+def test_yield_fixture(yield_fixture: str):
+    """Test the yield fixture, should pass"""
+    print("[yield][test]")
+
+
+def test_yield_fixture_fixture(
+    yield_fixture_fixture: str,
+):
+    """Test the yield fixture with yield fixture, should pass"""
+    print("[yield][test]")
+
+
+def test_yield_fixture_fixture_fixture(
+    yield_fixture_fixture_fixture: str,
+):
+    """Test the yield fixture with yield fixture with yield fixture, should pass"""
+    print("[yield][test]")
+
+
+def test_multiple_yield_fixtures(
+    yield_fixture: str, second_yield_fixture: str
+):
+    """Test the multiple yield fixtures, should pass"""
+    print("[yield][test]")
