@@ -100,22 +100,25 @@ class TestManager:
         """Runs the tests in the collector"""
 
         self._start_time()
-
         self._register_conftest_files()
 
-        for test_unit in collector.selected:
+        for test_file in collector.test_files:
+            for test_unit in test_file.test_units:
 
-            test_process = TestRunner(
-                test_unit=test_unit,
-                bpytest_config=self._bpytest_config,
-                session_info=self._session_info,
-            )
+                if not test_unit.selected:
+                    continue
 
-            result = test_process.execute()
-            test_unit.success = result
+                test_process = TestRunner(
+                    test_unit=test_unit,
+                    bpytest_config=self._bpytest_config,
+                    session_info=self._session_info,
+                )
 
-            print(test_unit)
-            self._finished_tests_list.append(test_unit)
+                result = test_process.execute()
+                test_unit.success = result
+
+                print(test_unit)
+                self._finished_tests_list.append(test_unit)
 
         self._finalize_session_fixtures()
         self._end_time()

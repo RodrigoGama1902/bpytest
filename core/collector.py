@@ -1,8 +1,7 @@
 import fnmatch
-import os
 from pathlib import Path
 
-from .entity import CollectorString, TestFile, TestUnit
+from .entity import CollectorString, TestFile
 from .print_helper import print_selected_functions
 
 IGNORE_DIRS: list[str] = [
@@ -18,9 +17,7 @@ IGNORE_DIRS: list[str] = [
 ]
 
 
-def collect_conftest_files(
-    path: Path, norecursedirs: list[str] = []
-) -> list[Path]:
+def collect_conftest_files(path: Path, norecursedirs: list[str]) -> list[Path]:
     """Collect all conftest.py files in the given path."""
     conftest_files = []
 
@@ -50,18 +47,16 @@ def collect_conftest_files(
 
 
 class Collector:
+    """Collects test files and test units."""
 
     test_files: list[TestFile] = []
-    test_units: list[TestUnit] = []
-    selected: list[TestUnit] = []
-
     path: Path
 
     def __init__(
         self,
         collector_string: CollectorString,
+        norecursedirs: list[str],
         keyword: str = "",
-        norecursedirs: list[str] = [],
     ):
 
         self._collector_string = collector_string
@@ -77,75 +72,39 @@ class Collector:
                 )
             ]
 
-        self.test_units = self._load_all_test_units(self.test_files)
-
-        self.selected = self._filter_by_collector_string(
-            self.test_units, self._collector_string
-        )
+        for test_file in self.test_files:
+            test_file.select_by_collector_string(self._collector_string)
 
         if keyword:
-            self.selected = self.filter_by_keyword(self.selected, keyword)
+            print(f"Selecting test units by keyword: {keyword}")
+            for test_file in self.test_files:
+                test_file.select_by_keyword(keyword)
 
         print_selected_functions(
-            len(self.test_units),
-            len(self.test_units) - len(self.selected),
-            len(self.selected),
+            self.get_total_test_units(),
+            self.get_total_test_units()
+            - self.get_total_test_units(selected_only=True),
+            self.get_total_test_units(selected_only=True),
         )
 
-    @staticmethod
-    def _load_all_test_units(test_files) -> list[TestUnit]:
+    def get_total_test_units(self, selected_only: bool = False) -> int:
+        """Get the total number of test units."""
 
-        test_units = []
-
-        for test_file in test_files:
-            test_units.extend(test_file.test_units)
-
-        return test_units
-
-    @staticmethod
-    def _filter_by_collector_string(
-        test_units, filter_collector_string: CollectorString
-    ) -> list[TestUnit]:
-
-        filtered: list[TestUnit] = []
-
-        for unit in test_units:
-            if filter_collector_string.path.is_file():
-                if (
-                    not filter_collector_string.path
-                    == unit.collector_string.path
-                ):
-                    continue
-            if filter_collector_string.path.is_dir():
-                if not unit.collector_string.path.is_relative_to(
-                    filter_collector_string.path
-                ):
-                    continue
-            if filter_collector_string.unit:
-                if (
-                    not filter_collector_string.unit
-                    == unit.collector_string.unit
-                ):
-                    continue
-
-            filtered.append(unit)
-
-        return filtered
-
-    @staticmethod
-    def filter_by_keyword(test_units, keyword):
-
-        functions = []
-
-        for unit in test_units:
-            if keyword in unit.function_name:
-                functions.append(unit)
-
-        return functions
+        total = 0
+        for test_file in self.test_files:
+            if selected_only:
+                total += len(
+                    [unit for unit in test_file.test_units if unit.selected]
+                )
+            else:
+                total += len(test_file.test_units)
+        return total
 
     def get_py_files_recursive(
-        self, path: Path, norecursedirs: list[str] = []
-    ):
+        self, path: Path, norecursedirs: list[str]
+    ) -> list[Path]:
+        """Collect all python files in the given path."""
+
         py_files = []
 
         for file_path in path.glob("**/*.py"):

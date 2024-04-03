@@ -4,7 +4,6 @@ import functools
 import inspect
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from pathlib import Path
 from typing import Any, Callable, Generator
 
 from .entity import BpyTestConfig, SessionInfo
