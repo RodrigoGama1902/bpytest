@@ -182,20 +182,6 @@ def test_session_yield_fixture():
     )
 
 
-def test_session_yield_fixture_all_tests():
-    """Assert that the session fixture is only setup and teardown once for all tests"""
-
-    _, stdout = assert_execute_all_tests(False, nocapture=True)
-
-    _check_yield_fixture_output_by_count(
-        stdout, "[yield][setup][session_fixture]", 1
-    )
-
-    _check_yield_fixture_output_by_count(
-        stdout, "[yield][teardown][session_fixture]", 1
-    )
-
-
 def test_module_fixture():
     """Test the module fixture, should pass"""
     assert_execute_test_unit(
@@ -222,4 +208,27 @@ def test_module_yield_fixture():
             "[yield][test]",
             "[yield][teardown][module_fixture]",
         ],
+    )
+
+
+def test_all_fixtures_setup_and_teardown():
+    """Assert that the all fixtures are setup and teardown correctly"""
+
+    _, stdout = assert_execute_all_tests(False, nocapture=True)
+
+    # Only one session fixture should be setup and teardown
+    _check_yield_fixture_output_by_count(
+        stdout, "[yield][setup][session_fixture]", 1
+    )
+    _check_yield_fixture_output_by_count(
+        stdout, "[yield][teardown][session_fixture]", 1
+    )
+
+    # Only Two module fixtures should be setup and teardown
+    # (since there are two module files that requests the module fixture)
+    _check_yield_fixture_output_by_count(
+        stdout, "[yield][setup][module_fixture]", 2
+    )
+    _check_yield_fixture_output_by_count(
+        stdout, "[yield][teardown][module_fixture]", 2
     )

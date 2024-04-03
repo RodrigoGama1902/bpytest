@@ -1,5 +1,6 @@
 import importlib.util
 import time
+from pathlib import Path
 
 from .collector import Collector, collect_conftest_files
 from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
@@ -96,6 +97,15 @@ class TestManager:
                 if fixture.session_teardown is not None:
                     fixture.session_teardown()
 
+    def _finalize_module_fixtures(self, test_file: Path):
+
+        for fixture in fixture_manager.fixtures.values():
+            if fixture.scope == Scope.MODULE:
+                for module in fixture.module_values.values():
+                    if module.module == test_file:
+                        if module.module_teardown is not None:
+                            module.module_teardown()
+
     def _run_tests(self, collector: Collector):
         """Runs the tests in the collector"""
 
@@ -119,6 +129,8 @@ class TestManager:
 
                 print(test_unit)
                 self._finished_tests_list.append(test_unit)
+
+            self._finalize_module_fixtures(test_file.filepath)
 
         self._finalize_session_fixtures()
         self._end_time()
