@@ -34,8 +34,13 @@
 
 - [x] Implement simple fixture registering from conftest.py
 - [x] Implement fixtures yield behavior
-- [ ] Implement definition scope of fixtures (module, package (fixtures defined in the conftest.py) )
-- [ ] Implement fixtures scope (function, class, module, package)
+- [ ] Implement declaration scope of fixtures (module, package (fixtures defined in the conftest.py) )
+- [ ] Implement fixtures scope:
+    - [x] function
+    - [ ] class
+    - [x] module
+    - [ ] package
+    - [ ] session
 - [x] Add fixtures (Maybe the collector will collect all fixtures first)
 - [x] Allow add fixtures to receive a fixture name
 - [ ] Implement classes grouping
