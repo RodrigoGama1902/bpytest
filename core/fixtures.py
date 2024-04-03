@@ -236,12 +236,23 @@ class FixtureManager:
                 wrapped_fixture_func, fixture_arg
             )
 
+        return self._get_fixture_value_by_scope(
+            fixture, wrapped_fixture_func, request
+        )
+
+    @staticmethod
+    def _get_fixture_value_by_scope(
+        fixture: Fixture,
+        wrapped_fixture_func: FixtureFunction,
+        request: "FixtureRequest",
+    ) -> tuple[FixtureValue, FixtureTeardown]:
+        """Get a fixture value by scope and return the value and teardown function."""
+
         if fixture.scope == Scope.SESSION:
             if not fixture.is_session_value_stored:
                 value, teardown = call_fixture_func(
                     wrapped_fixture_func, request, {}
                 )
-
                 fixture.session_value = value
                 fixture.session_teardown = teardown
                 fixture.is_session_value_stored = True
@@ -249,7 +260,6 @@ class FixtureManager:
             return fixture.session_value, None
 
         elif fixture.scope == Scope.MODULE:
-
             func_module = Path(inspect.getfile(request.func))
 
             if not fixture.module_values.get(func_module):
@@ -263,7 +273,6 @@ class FixtureManager:
                     module_value=value,
                     module_teardown=teardown,
                 )
-
             return (
                 fixture.module_values[func_module].module_value,
                 None,
