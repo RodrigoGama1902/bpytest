@@ -159,6 +159,7 @@ class Fixture:
 
     name: str
     func: FixtureFunction
+    module_path: Path
     scope: Scope = field(default=Scope.FUNCTION)
 
     is_session_value_stored: bool = field(default=False)
@@ -294,6 +295,7 @@ def fixture(
             Fixture(
                 name=func.__name__,
                 func=func,
+                module_path=Path(inspect.getfile(func)),
                 scope=Scope[scope.upper()] if scope else Scope.FUNCTION,
             )
         )
