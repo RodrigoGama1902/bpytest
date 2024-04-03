@@ -3,6 +3,7 @@ import time
 
 from .collector import Collector, collect_conftest_files
 from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
+from .fixtures import Scope, fixture_manager
 from .print_helper import print_failed, print_header
 from .runner import TestRunner
 from .types import ExitCode
@@ -105,6 +106,13 @@ class TestManager:
             test_file = importlib.util.module_from_spec(spec)  # type:ignore
             spec.loader.exec_module(test_file)  # type:ignore
 
+    def _finalize_session_fixtures(self):
+
+        for fixture in fixture_manager.fixtures.values():
+            if fixture.scope == Scope.SESSION:
+                if fixture.session_teardown is not None:
+                    fixture.session_teardown()
+
     def _run_tests(self, collector: Collector):
         """Runs the tests in the collector"""
 
@@ -128,6 +136,8 @@ class TestManager:
             self._finished_tests_list.append(test_unit)
 
         # self._run_teardown_fixtures()
+
+        self._finalize_session_fixtures()
         self._end_time()
 
     def execute(self) -> ExitCode:

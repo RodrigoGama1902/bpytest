@@ -16,6 +16,25 @@ def assert_execute_test_unit(
     if nocapture:
         cmd.append("-s")
 
+    return _execute_pytest_command(cmd, expect_success)
+
+
+def assert_execute_tests_by_keyword(
+    expect_success: bool, keyword: str, nocapture: bool = False
+) -> tuple[int, list[str]]:
+    """Execute tests by keyword and assert the result"""
+
+    cmd = ["bpytest", "-k", keyword]
+    if nocapture:
+        cmd.append("-s")
+
+    return _execute_pytest_command(cmd, expect_success)
+
+
+def _execute_pytest_command(
+    cmd: list[str], expect_success: bool
+) -> tuple[int, list[str]]:
+
     process = subprocess.run(
         cmd,
         check=False,

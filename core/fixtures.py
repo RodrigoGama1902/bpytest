@@ -2,13 +2,18 @@
 
 import functools
 import inspect
+from dataclasses import dataclass, field
+from enum import Enum, auto
 from typing import Any, Callable, Generator
 
 from .entity import BpyTestConfig, SessionInfo
 
-FixtureValue = Callable[..., Any]
+# Fixture function
 FixtureFunction = Callable[..., Any]
-FixtureTeardown = Callable[[], None]
+# Value returned by a fixture function
+FixtureValue = Any | None
+# Fixture teardown function callable object
+FixtureTeardown = Callable[[], None] | None
 
 
 def execute_finalize_request(request: "FixtureRequest") -> None:
@@ -24,7 +29,7 @@ def call_fixture_func(
     fixturefunc: FixtureFunction,
     request: "FixtureRequest",
     kwargs: dict[str, Any],
-) -> tuple[FixtureValue, FixtureTeardown | None]:
+) -> tuple[FixtureValue, FixtureTeardown]:
     """Call a fixture function and return the result.
 
     # Note: Based on pytest's implementation
@@ -95,6 +100,7 @@ def inspect_func_for_fixtures(
         fixture_func, fixture_teardown = fixture_manager.get_fixture(
             arg_name, fixture_request
         )
+
         fixture_values.append(fixture_func)
 
         fixture_request.finalizer = fixture_teardown
@@ -127,24 +133,49 @@ class FixtureRequest:
         self.config = config
 
 
+class Scope(Enum):
+    """Enum class to represent the fixture scope."""
+
+    FUNCTION = auto()
+    CLASS = auto()
+    MODULE = auto()
+    SESSION = auto()
+
+
+@dataclass
+class Fixture:
+    """Fixture Data class to store the fixture data."""
+
+    name: str
+    func: FixtureFunction
+    scope: Scope = field(default=Scope.FUNCTION)
+
+    is_session_value_stored: bool = field(default=False)
+    session_value: FixtureValue = field(default=None)
+    session_teardown: FixtureTeardown = field(default=None)
+
+
 class FixtureManager:
     """Fixture Manger class to manage fixtures."""
 
-    fixtures: dict[str, Callable[[], Any]]
+    fixtures: dict[str, Fixture]
 
     def __init__(self):
-
         self.fixtures = {}
 
-    def register_fixture(self, name: str, fixture_func: Callable[[], Any]):
+    def register_fixture(self, fixture: Fixture):
         """Register a fixture function."""
 
-        print(f"Registering fixture: {name}")
-        self.fixtures[name] = fixture_func
+        for i in self.fixtures:
+            if i == fixture.name:
+                return
+
+        print(f"Registering fixture: {str(fixture)}")
+        self.fixtures[fixture.name] = fixture
 
     def _create_wrapped_fixture(
         self, original_func: Callable[..., Any], request: FixtureRequest
-    ) -> FixtureValue:
+    ) -> FixtureFunction:
         """Create a fixture function with request argument injected."""
         original_params = inspect.signature(original_func).parameters
         if "request" in original_params:
@@ -158,7 +189,7 @@ class FixtureManager:
 
     def get_fixture(
         self, name: str, request: FixtureRequest
-    ) -> tuple[FixtureValue, FixtureTeardown | None]:
+    ) -> tuple[FixtureValue, FixtureTeardown]:
         """Get a fixture function by name and return a wrapped
         fixture function with internal args injected (Ex: request arg).
 
@@ -173,17 +204,17 @@ class FixtureManager:
         if name not in self.fixtures:
             raise ValueError(f"Fixture '{name}' not registered.")
 
-        fixture_func = self.fixtures[name]
+        fixture: Fixture = self.fixtures[name]
         fixture_agrs: list[FixtureValue] = []
 
         # Inspect the fixture function for fixtures recursively if there are any
         child_requests, fixture_agrs = inspect_func_for_fixtures(
-            fixture_func, request.session_info, request.config
+            fixture.func, request.session_info, request.config
         )
 
         request.child_requests.extend(child_requests)
         wrapped_fixture_func = self._create_wrapped_fixture(
-            fixture_func, request
+            fixture.func, request
         )
 
         # Inject the fixture arguments into the wrapped fixture
@@ -192,13 +223,42 @@ class FixtureManager:
                 wrapped_fixture_func, fixture_arg
             )
 
+        if fixture.scope == Scope.FUNCTION:
+            return call_fixture_func(wrapped_fixture_func, request, {})
+        elif fixture.scope == Scope.SESSION:
+            if not fixture.is_session_value_stored:
+                value, teardown = call_fixture_func(
+                    wrapped_fixture_func, request, {}
+                )
+
+                fixture.session_value = value
+                fixture.session_teardown = teardown
+                fixture.is_session_value_stored = True
+
+            return fixture.session_value, None
+
         return call_fixture_func(wrapped_fixture_func, request, {})
 
 
 fixture_manager = FixtureManager()
 
 
-def fixture(func: FixtureFunction):
+def fixture(
+    func: FixtureFunction | None = None, *, scope: str = "function"
+) -> FixtureFunction:
     """Decorator to register a fixture function."""
-    fixture_manager.register_fixture(func.__name__, func)
-    return func
+
+    def decorator(func: FixtureFunction) -> FixtureFunction:
+        fixture_manager.register_fixture(
+            Fixture(
+                name=func.__name__,
+                func=func,
+                scope=Scope[scope.upper()] if scope else Scope.FUNCTION,
+            )
+        )
+        return func
+
+    if func is None:
+        return decorator
+    else:
+        return decorator(func)

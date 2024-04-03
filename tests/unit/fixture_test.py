@@ -1,4 +1,8 @@
-from conftest import BPY_TEST_FILES, assert_execute_test_unit
+from conftest import (
+    BPY_TEST_FILES,
+    assert_execute_test_unit,
+    assert_execute_tests_by_keyword,
+)
 
 
 def _check_yield_fixture_output(stdout: list[str], expected: list[str]):
@@ -130,5 +134,40 @@ def test_multiple_yield_fixtures():
             "[yield][test]",
             "[yield][teardown][yield_fixture]",
             "[yield][teardown][second_yield_fixture]",
+        ],
+    )
+
+
+def test_session_fixture():
+    """Test the session fixture, should pass"""
+    assert_execute_test_unit(
+        True, BPY_TEST_FILES / "fixture_test.py", "test_session_fixture"
+    )
+
+
+def test_session_yield_fixture():
+    """Test the session yield fixture, should pass"""
+
+    _, stdout = assert_execute_tests_by_keyword(
+        True, "test_session_yield_fixture", nocapture=True
+    )
+
+    print(stdout)
+
+    _check_yield_fixture_output(
+        stdout,
+        expected=[
+            "[yield][setup][session_fixture]",
+            "[yield][setup][yield_fixture]",
+            "[yield][setup][yield_fixture_fixture]",
+            "[yield][test]",
+            "[yield][teardown][yield_fixture_fixture]",
+            "[yield][teardown][yield_fixture]",
+            "[yield][setup][yield_fixture]",
+            "[yield][setup][yield_fixture_fixture]",
+            "[yield][test]",
+            "[yield][teardown][yield_fixture_fixture]",
+            "[yield][teardown][yield_fixture]",
+            "[yield][teardown][session_fixture]",
         ],
     )

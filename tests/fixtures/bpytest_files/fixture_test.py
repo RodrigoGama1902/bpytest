@@ -114,3 +114,25 @@ def test_multiple_yield_fixtures(
 ):
     """Test the multiple yield fixtures, should pass"""
     print("[yield][test]")
+
+
+def test_session_fixture(session_fixture: str):
+    """Test the session fixture, should pass"""
+
+    assert session_fixture == "session_fixture"
+
+
+def test_session_yield_fixture(
+    session_yield_fixture: str, yield_fixture_fixture: str
+):
+    """Test the session yield fixture, should pass"""
+
+    print("[yield][test]")
+
+
+def test_session_yield_fixture2(
+    session_yield_fixture: str, yield_fixture_fixture: str
+):
+    """Test the session yield fixture, should pass"""
+
+    print("[yield][test]")
