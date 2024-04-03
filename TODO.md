@@ -40,7 +40,7 @@
     - [ ] class
     - [x] module
     - [ ] package
-    - [ ] session
+    - [x] session
 - [x] Add fixtures (Maybe the collector will collect all fixtures first)
 - [x] Allow add fixtures to receive a fixture name
 - [ ] Implement classes grouping
