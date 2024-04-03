@@ -4,6 +4,7 @@ import functools
 import inspect
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from pathlib import Path
 from typing import Any, Callable, Generator
 
 from .entity import BpyTestConfig, SessionInfo
@@ -14,6 +15,8 @@ FixtureFunction = Callable[..., Any]
 FixtureValue = Any | None
 # Fixture teardown function callable object
 FixtureTeardown = Callable[[], None] | None
+# Fixture
+FunctionModule = str
 
 
 def execute_finalize_request(request: "FixtureRequest") -> None:
@@ -143,6 +146,16 @@ class Scope(Enum):
 
 
 @dataclass
+class ModuleValues:
+    """Module Values Data class to store the module values."""
+
+    module: FunctionModule
+    is_module_value_store: bool
+    module_value: FixtureValue
+    module_teardown: FixtureTeardown
+
+
+@dataclass
 class Fixture:
     """Fixture Data class to store the fixture data."""
 
@@ -153,6 +166,10 @@ class Fixture:
     is_session_value_stored: bool = field(default=False)
     session_value: FixtureValue = field(default=None)
     session_teardown: FixtureTeardown = field(default=None)
+
+    module_values: dict[FunctionModule, ModuleValues] = field(
+        default_factory=dict
+    )
 
 
 class FixtureManager:
@@ -223,9 +240,7 @@ class FixtureManager:
                 wrapped_fixture_func, fixture_arg
             )
 
-        if fixture.scope == Scope.FUNCTION:
-            return call_fixture_func(wrapped_fixture_func, request, {})
-        elif fixture.scope == Scope.SESSION:
+        if fixture.scope == Scope.SESSION:
             if not fixture.is_session_value_stored:
                 value, teardown = call_fixture_func(
                     wrapped_fixture_func, request, {}
@@ -236,6 +251,24 @@ class FixtureManager:
                 fixture.is_session_value_stored = True
 
             return fixture.session_value, None
+
+        elif fixture.scope == Scope.MODULE:
+            if not fixture.module_values.get(request.func.__module__):
+                value, teardown = call_fixture_func(
+                    wrapped_fixture_func, request, {}
+                )
+
+                fixture.module_values[request.func.__module__] = ModuleValues(
+                    module=request.func.__module__,
+                    is_module_value_store=True,
+                    module_value=value,
+                    module_teardown=teardown,
+                )
+
+            return (
+                fixture.module_values[request.func.__module__].module_value,
+                None,
+            )
 
         return call_fixture_func(wrapped_fixture_func, request, {})
 

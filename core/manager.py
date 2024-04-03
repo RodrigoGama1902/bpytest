@@ -78,23 +78,6 @@ class TestManager:
         """Ends the timer to be used to compute the total time of the test session"""
         self._total_time = time.time() - self.start_time
 
-    # def _run_setup_fixtures(self):
-    #     """Runs the setup fixtures before the tests"""
-
-    #     for fixture_name in fixture_manager.fixtures:
-    #         fixture_func = fixture_manager.get_fixture(fixture_name)
-    #         if fixture_func.__name__.startswith("setup"):
-    #             fixture_func()
-
-    # def _run_teardown_fixtures(self):
-    #     """Runs the teardown fixtures after the tests"""
-
-    #     for fixture_name in fixture_manager.fixtures:
-    #         fixture_func = fixture_manager.get_fixture(fixture_name)
-    #         if fixture_func.__name__.startswith("teardown"):
-    #             # Run teardown fixtures after tests
-    #             fixture_func()
-
     def _register_conftest_files(self):
         """Registers the fixtures from conftest files"""
 
@@ -119,7 +102,6 @@ class TestManager:
         self._start_time()
 
         self._register_conftest_files()
-        # self._run_setup_fixtures()
 
         for test_unit in collector.selected:
 
@@ -134,8 +116,6 @@ class TestManager:
 
             print(test_unit)
             self._finished_tests_list.append(test_unit)
-
-        # self._run_teardown_fixtures()
 
         self._finalize_session_fixtures()
         self._end_time()

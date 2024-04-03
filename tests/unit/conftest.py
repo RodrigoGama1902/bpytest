@@ -31,6 +31,18 @@ def assert_execute_tests_by_keyword(
     return _execute_pytest_command(cmd, expect_success)
 
 
+def assert_execute_all_tests(
+    expect_success: bool, nocapture: bool = False
+) -> tuple[int, list[str]]:
+    """Execute all tests and assert the result"""
+
+    cmd = ["bpytest"]
+    if nocapture:
+        cmd.append("-s")
+
+    return _execute_pytest_command(cmd, expect_success)
+
+
 def _execute_pytest_command(
     cmd: list[str], expect_success: bool
 ) -> tuple[int, list[str]]:
