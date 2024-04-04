@@ -11,7 +11,6 @@ setup(
         ],
     },
     install_requires=[
-        "colorama==0.4.6",
         "toml==0.10.2",
     ],
 )

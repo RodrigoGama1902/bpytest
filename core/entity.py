@@ -1,9 +1,8 @@
 import json
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Any
-
-from colorama import Fore
 
 
 class CollectorString:
@@ -128,6 +127,18 @@ class BpyTestConfig:
         return json.dumps(self.as_dict())
 
 
+class bcolors(Enum):
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+
+
 class TestUnit:
 
     function_name: str
@@ -155,8 +166,8 @@ class TestUnit:
 
     def __repr__(self) -> str:
 
-        color = Fore.GREEN if self.success else Fore.RED
-        return f'"{self.test_filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{Fore.RESET}'
+        color = bcolors.OKGREEN.value if self.success else bcolors.FAIL.value
+        return f'"{self.test_filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{bcolors.ENDC.value}'
 
 
 class TestFile:

@@ -1,10 +1,66 @@
 """This module is the entry point for the session blender subprocess."""
 
 import json
+import shutil
 import sys
+import tempfile
 import traceback
+import zipfile
+from pathlib import Path
 
 import bpy
+
+
+def _check_if_addon_is_installed(addon_name: str) -> bool:
+    """Check if the addon is installed"""
+
+    for addon in bpy.context.preferences.addons:
+        if addon.module == addon_name:
+            return True
+    return False
+
+
+def _copy_files_recursive(src: Path, dst: Path, ignore_dirs: list[str]):
+    """Copy files recursively from src to dst"""
+
+    for item in src.iterdir():
+        if item.is_dir():
+            if item.name in ignore_dirs:
+                continue
+            shutil.copytree(item, dst / item.name)
+        else:
+            shutil.copy2(item, dst / item.name)
+
+
+def _create_temp_addon_zip(addon_dir: Path) -> Path:
+    """Create a temporary zip file with the addon contents"""
+
+    temp_dir = Path(tempfile.mkdtemp(prefix="bpytest_addon_"))
+    module_dir = temp_dir / "bpytest" / "bpytest"
+    module_dir.mkdir(parents=True)
+
+    _copy_files_recursive(
+        addon_dir,
+        module_dir,
+        ignore_dirs=["__pycache__", ".git", ".venv", ".pytest_cache"],
+    )
+
+    temp_zip = module_dir.parent.parent / "bpytest.zip"
+    with zipfile.ZipFile(temp_zip, "w") as zipf:
+        for file in module_dir.parent.rglob("*"):
+            zipf.write(file, file.relative_to(module_dir.parent))
+
+    return temp_zip
+
+
+# if not _check_if_addon_is_installed("bpytest"):
+
+#     addon_zip = _create_temp_addon_zip(
+#         Path(r"C:\coding\rodrigogama1902\bpytest")
+#     )
+#     bpy.ops.preferences.addon_install(
+#         filepath=addon_zip.as_posix(), overwrite=True
+#     )
 
 try:
     bpy.ops.preferences.addon_enable(module="bpytest")
