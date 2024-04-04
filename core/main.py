@@ -51,6 +51,14 @@ def main() -> None:
         help="Path to blender executable",
     )
 
+    # add no norecursedirs, will be a list for string
+    parser.add_argument(
+        "-nrd",
+        "--norecursedirs",
+        nargs="*",
+        help="List of directories to be excluded from the test search",
+    )
+
     parser.add_argument(
         "-s", "--nocapture", action="store_true", help="Disable output capture"
     )
@@ -76,6 +84,8 @@ def main() -> None:
         bpytest_config.keyword = args.keyword
     if args.collector_string is not None:
         bpytest_config.collector_string = args.collector_string
+    if args.norecursedirs is not None:
+        bpytest_config.norecursedirs = args.norecursedirs
 
     if bpytest_config.blender_exe is None:
         print("Blender executable not specified")
