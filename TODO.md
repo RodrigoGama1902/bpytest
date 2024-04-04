@@ -10,6 +10,7 @@
 
 # Blender Add-on
 
+- [ ] Automatic install bpytest addon if not installed
 - [ ] Re-design the UI
 - [ ] Restore the possibility to run the tests from the Blender UI
 - [ ] Allow it test to be runned individually
