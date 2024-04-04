@@ -11,15 +11,6 @@ from pathlib import Path
 import bpy
 
 
-def _check_if_addon_is_installed(addon_name: str) -> bool:
-    """Check if the addon is installed"""
-
-    for addon in bpy.context.preferences.addons:
-        if addon.module == addon_name:
-            return True
-    return False
-
-
 def _copy_files_recursive(src: Path, dst: Path, ignore_dirs: list[str]):
     """Copy files recursively from src to dst"""
 
@@ -53,17 +44,16 @@ def _create_temp_addon_zip(addon_dir: Path) -> Path:
     return temp_zip
 
 
-# if not _check_if_addon_is_installed("bpytest"):
-
-#     addon_zip = _create_temp_addon_zip(
-#         Path(r"C:\coding\rodrigogama1902\bpytest")
-#     )
-#     bpy.ops.preferences.addon_install(
-#         filepath=addon_zip.as_posix(), overwrite=True
-#     )
-
 try:
     bpy.ops.preferences.addon_enable(module="bpytest")
+except:  # pylint: disable=bare-except
+    addon_zip = _create_temp_addon_zip(Path(__file__).parent.parent)
+    bpy.ops.preferences.addon_install(
+        filepath=addon_zip.as_posix(), overwrite=True
+    )
+    bpy.ops.preferences.addon_enable(module="bpytest")
+
+try:
     from bpytest.core.entity import BpyTestConfig
     from bpytest.core.session import wrap_session
 except ModuleNotFoundError:
