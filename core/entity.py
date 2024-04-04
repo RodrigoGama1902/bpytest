@@ -115,7 +115,6 @@ class BpyTestConfig:
 
         self.pythonpath = Path(pyproject_toml.get("pythonpath", "")).absolute()
         self.nocapture = pyproject_toml.get("nocapture", False)
-        self.raise_error = pyproject_toml.get("raise_error", False)
         self.module_list = pyproject_toml.get("module_list", "")
         self.norecursedirs = pyproject_toml.get("norecursedirs", [])
         self.runner_type = RunnerType(
