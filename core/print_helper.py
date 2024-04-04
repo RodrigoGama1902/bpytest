@@ -1,15 +1,14 @@
 import os
 
-from colorama import Fore, Style
-
-from .entity import TestUnit
+from .entity import BColors, TestUnit
 
 
-def print_header(text: str, color: str = "WHITE", bold=True):
+def print_header(text: str, color: BColors = BColors.WHITE, bold: bool = True):
+    """Prints a header with the given text"""
 
-    color = getattr(Fore, color.upper(), "")  # Dynamic Fore.color retrive
+    color = getattr(BColors, color.name.upper())
     if not color:
-        raise Exception("Fore Color not found")
+        raise ValueError(f"Color {color} not found")
 
     try:
         size = os.get_terminal_size()
@@ -17,11 +16,10 @@ def print_header(text: str, color: str = "WHITE", bold=True):
         # Return a default size if getting terminal size fails
         size = os.terminal_size((80, 24))  # Default to 80x24 characters
     print(
-        color
-        + (Style.BRIGHT if bold else "")
+        color.value
+        + (BColors.BOLD.value if bold else "")
         + "{s:{c}^{n}}".format(s=" " + text + " ", n=size.columns, c="=")
-        + Fore.RESET
-        + Style.RESET_ALL
+        + BColors.ENDC.value
     )
 
 
@@ -43,8 +41,8 @@ def print_selected_functions(
 
     print(
         (
-            f"{Style.BRIGHT}collected {str(total_collected_tests)} items / "
+            f"{BColors.BRIGHT.value}collected {str(total_collected_tests)} items / "
             f"{str(total_deselected_tests)} deselected / "
-            f"{str(total_selected_tests)} selected \n {Style.RESET_ALL}"
+            f"{str(total_selected_tests)} selected \n {BColors.ENDC.value}"
         )
     )

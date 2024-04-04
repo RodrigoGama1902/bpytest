@@ -127,7 +127,9 @@ class BpyTestConfig:
         return json.dumps(self.as_dict())
 
 
-class bcolors(Enum):
+class BColors(Enum):
+    """Enum that represents the colors for the terminal"""
+
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
     OKCYAN = "\033[96m"
@@ -137,6 +139,8 @@ class bcolors(Enum):
     ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
+    BRIGHT = "\033[1m"
+    WHITE = "\033[97m"
 
 
 class TestUnit:
@@ -166,8 +170,8 @@ class TestUnit:
 
     def __repr__(self) -> str:
 
-        color = bcolors.OKGREEN.value if self.success else bcolors.FAIL.value
-        return f'"{self.test_filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{bcolors.ENDC.value}'
+        color = BColors.OKGREEN.value if self.success else BColors.FAIL.value
+        return f'"{self.test_filepath}" {self.function_name} {color} {"[PASSED]" if self.success else "[FAILED]"}{BColors.ENDC.value}'
 
 
 class TestFile:

@@ -3,7 +3,13 @@ import time
 from pathlib import Path
 
 from .collector import Collector, collect_conftest_files
-from .entity import BpyTestConfig, CollectorString, SessionInfo, TestUnit
+from .entity import (
+    BColors,
+    BpyTestConfig,
+    CollectorString,
+    SessionInfo,
+    TestUnit,
+)
 from .fixtures import Scope, fixture_manager
 from .print_helper import print_failed, print_header
 from .runner import TestRunner
@@ -66,7 +72,7 @@ class TestManager:
             if not test.success:
                 print(test)
 
-        print_color = "RED" if self._failed else "GREEN"
+        print_color = BColors.FAIL if self._failed else BColors.OKGREEN
         center_text = f"Failed: {self._failed} Success: {self._success} in {self._total_time:.2f} seconds"
 
         print_header(center_text, print_color)
