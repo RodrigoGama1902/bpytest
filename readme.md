@@ -23,26 +23,28 @@ bpytest -s -k "test_function"
 
 ```python
 import bpytest
+import bpy
 
 @bpytest.fixture(scope="session")
 def session():
-    """Create a session."""	
+    """Create a session for some random rest API"""	
     session = Session()
     yield session
     session.close()
 
 @bpytest.fixture
-def user_name():
-    return "user_name"
+def blender_object():
+    """Create a blender object"""
+    bpy.ops.mesh.primitive_cube_add()
+    return bpy.context.object
 
-def test_subtraction(session_fixture, user_name):
+def test_session_upload(session_fixture, blender_object):
     """Test session.say_hello() method."""	
-    assert session_fixture.say_hello(user_name)
+    assert session_fixture.upload_object_name(blender_object.name)
 ```
 
-## Compatibility
-Compatible with Blender versions 3.5 and above.
-Requires Python 3.11 or higher.
+## Documentation
+For detailed usage instructions and examples, please refer to the documentation [Work in progress].
 
 ## Contributing
 Contributions are welcome! Feel free to submit issues or pull requests on this repository.
