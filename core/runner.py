@@ -51,7 +51,13 @@ def execute(
         module_filepath.stem, module_filepath
     )
     test_file = importlib.util.module_from_spec(spec)  # type:ignore
-    spec.loader.exec_module(test_file)  # type:ignore
+
+    try:
+        spec.loader.exec_module(test_file)  # type:ignore
+    except ModuleNotFoundError:
+        return ExecutionResult(
+            False, [f"ModuleNotFoundError: {module_filepath}"]
+        )
 
     obj = getattr(test_file, function_name)
 
