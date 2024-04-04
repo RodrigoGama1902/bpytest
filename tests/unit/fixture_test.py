@@ -81,6 +81,26 @@ def test_yield_fixture():
     )
 
 
+def test_yield_fixture_return():
+    """Test the yield fixture with return, should pass"""
+
+    _, stdout = assert_execute_test_unit(
+        True,
+        BPY_TEST_FILES / "fixture_test.py",
+        "test_yield_fixture_return",
+        nocapture=True,
+    )
+
+    _check_yield_fixture_output_by_value_order(
+        stdout,
+        expected=[
+            "[yield][setup][yield_fixture_return]",
+            "[yield][return][yield_fixture]",
+            "[yield][teardown][yield_fixture_return]",
+        ],
+    )
+
+
 def test_yield_fixture_fixture():
     """Test the yield fixture with yield fixture, should pass"""
 

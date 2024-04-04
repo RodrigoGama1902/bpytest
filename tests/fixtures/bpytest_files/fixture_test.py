@@ -28,6 +28,15 @@ def yield_fixture():
 
 
 @bpytest.fixture
+def yield_fixture_return():
+    """Yield fixture with return"""
+
+    print("[yield][setup][yield_fixture_return]")
+    yield "[yield][return][yield_fixture]"
+    print("[yield][teardown][yield_fixture_return]")
+
+
+@bpytest.fixture
 def second_yield_fixture():
     """Second yield fixture"""
 
@@ -93,6 +102,13 @@ def test_multiple_fixtures(
 def test_yield_fixture(yield_fixture: str):
     """Test the yield fixture, should pass"""
     print("[yield][test]")
+
+
+def test_yield_fixture_return(yield_fixture_return: str):
+    """Test the yield fixture with return, should pass"""
+
+    print(yield_fixture_return)
+    assert yield_fixture_return == "[yield][return][yield_fixture]"
 
 
 def test_yield_fixture_fixture(
