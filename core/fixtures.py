@@ -183,8 +183,6 @@ class FixtureManager:
         for i in self.fixtures:
             if i == fixture.name:
                 return
-
-        print(f"Registering fixture: {str(fixture)}")
         self.fixtures[fixture.name] = fixture
 
     def _create_wrapped_fixture(
