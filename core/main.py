@@ -46,6 +46,12 @@ def main() -> None:
 
     # Optional arguments
     parser.add_argument(
+        "-be",
+        "--blender-exe",
+        help="Path to blender executable",
+    )
+
+    parser.add_argument(
         "-s", "--nocapture", action="store_true", help="Disable output capture"
     )
     parser.add_argument(
@@ -56,16 +62,28 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    bpytest_config = BpyTestConfig()
-    bpytest_config.load_from_pyproject_toml(Path.cwd() / "pyproject.toml")
+    bpytest_config: BpyTestConfig = BpyTestConfig()
+
+    pyproject_path = Path.cwd() / "pyproject.toml"
+    if pyproject_path.exists():
+        bpytest_config.load_from_pyproject_toml(pyproject_path)
 
     bpytest_config.runner_type = RunnerType.BACKGROUND
     bpytest_config.nocapture = args.nocapture
 
+    if args.blender_exe is not None:
+        bpytest_config.blender_exe = Path(args.blender_exe)
     if args.keyword is not None:
         bpytest_config.keyword = args.keyword
     if args.collector_string is not None:
         bpytest_config.collector_string = args.collector_string
+
+    if bpytest_config.blender_exe is None:
+        print("Blender executable not specified")
+        sys.exit(1)
+    if not bpytest_config.blender_exe.exists():
+        print("Path to blender executable does not exist")
+        sys.exit(1)
 
     sys.exit(_call_subprocess(bpytest_config))
 

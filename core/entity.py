@@ -63,7 +63,7 @@ class BpyTestConfig:
     toggle_console: bool = field(default=False)
     module_list: str = field(default="")
     runner_type: RunnerType = field(default=RunnerType.BACKGROUND)
-    blender_exe: Path = field(default=Path.cwd())
+    blender_exe: Path | None = field(default=None)
     norecursedirs: list[str] = field(default_factory=list)
 
     collector_string: str = field(default="")
@@ -72,6 +72,10 @@ class BpyTestConfig:
     def load_from_dict(self, data: dict[str, Any]):
         """Loads the config from a dict"""
         for key, value in data.items():
+
+            if key == "blender_exe":
+                setattr(self, key, Path(value))
+                continue
 
             if value == "True":
                 setattr(self, key, True)
