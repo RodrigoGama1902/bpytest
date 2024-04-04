@@ -15,7 +15,7 @@
 - [ ] Restore the possibility to run the tests from the Blender UI
 - [ ] Allow it test to be runned individually
 - [x] add all pyproject.toml config to Blender UI
-    collector string, keyword, -s, runner_type
+    collector string, keyword, -s
 
 # CLI
 

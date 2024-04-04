@@ -1,16 +1,9 @@
 import json
 from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
 from colorama import Fore
-
-
-class RunnerType(Enum):
-
-    BACKGROUND = "background"
-    RUNTIME = "runtime"
 
 
 class CollectorString:
@@ -49,9 +42,6 @@ class BpyTestConfig:
 
     :param pythonpath: Path python cwd
     :param nocapture: Show test log
-    :param runner_type: Define the test process mode to be used, background or runtime.
-        In background mode, the test is run in a subprocess, in runtime mode, the test is run in
-        the current blender process.
     :param module_list: List of modules to be loaded before running the tests
     :param blender_exe: Path to blender executable
 
@@ -60,7 +50,6 @@ class BpyTestConfig:
     pythonpath: Path = field(default=Path.cwd())
     nocapture: bool = field(default=False)
     module_list: str = field(default="")
-    runner_type: RunnerType = field(default=RunnerType.BACKGROUND)
     blender_exe: Path | None = field(default=None)
     norecursedirs: list[str] = field(default_factory=list)
 
@@ -117,9 +106,6 @@ class BpyTestConfig:
         self.nocapture = pyproject_toml.get("nocapture", False)
         self.module_list = pyproject_toml.get("module_list", "")
         self.norecursedirs = pyproject_toml.get("norecursedirs", [])
-        self.runner_type = RunnerType(
-            pyproject_toml.get("runner_type", "background")
-        )
         self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
 
     def as_dict(self) -> dict[str, Any]:

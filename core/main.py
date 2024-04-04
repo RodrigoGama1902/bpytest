@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from .entity import BpyTestConfig, RunnerType
+from .entity import BpyTestConfig
 from .types import ExitCode
 
 
@@ -68,7 +68,6 @@ def main() -> None:
     if pyproject_path.exists():
         bpytest_config.load_from_pyproject_toml(pyproject_path)
 
-    bpytest_config.runner_type = RunnerType.BACKGROUND
     bpytest_config.nocapture = args.nocapture
 
     if args.blender_exe is not None:
