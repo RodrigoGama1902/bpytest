@@ -35,13 +35,7 @@ class BPYTEST_OT_Tests(bpy.types.Operator):
             bpytest_config=bpytest_config, collector=collector
         )
 
-        if test_manager.bpytest_config.toggle_console:
-            bpy.ops.wm.console_toggle()
-
         test_manager.execute()
-
-        if test_manager.bpytest_config.toggle_console:
-            bpy.ops.wm.console_toggle()
 
         self.report(
             {"INFO"},

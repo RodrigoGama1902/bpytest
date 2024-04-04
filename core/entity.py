@@ -49,7 +49,6 @@ class BpyTestConfig:
 
     :param pythonpath: Path python cwd
     :param nocapture: Show test log
-    :param toggle_console: Toggle console before and after running tests
     :param runner_type: Define the test process mode to be used, background or runtime.
         In background mode, the test is run in a subprocess, in runtime mode, the test is run in
         the current blender process.
@@ -60,7 +59,6 @@ class BpyTestConfig:
 
     pythonpath: Path = field(default=Path.cwd())
     nocapture: bool = field(default=False)
-    toggle_console: bool = field(default=False)
     module_list: str = field(default="")
     runner_type: RunnerType = field(default=RunnerType.BACKGROUND)
     blender_exe: Path | None = field(default=None)
@@ -115,9 +113,8 @@ class BpyTestConfig:
             print("tool.bpytest not found")
             return
 
-        self.pythonpath = Path(pyproject_toml.get("pythonpath")).absolute()
+        self.pythonpath = Path(pyproject_toml.get("pythonpath", "")).absolute()
         self.nocapture = pyproject_toml.get("nocapture", False)
-        self.toggle_console = pyproject_toml.get("toggle_console", False)
         self.raise_error = pyproject_toml.get("raise_error", False)
         self.module_list = pyproject_toml.get("module_list", "")
         self.norecursedirs = pyproject_toml.get("norecursedirs", [])
