@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name="bpytest",
     version="0.1",
-    packages=find_packages("src/bpytest"),
+    packages=find_packages("src/bpytest", include=["bpytest"]),
     package_dir={"": "src/bpytest"},
     entry_points={
         "console_scripts": [
