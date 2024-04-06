@@ -51,6 +51,7 @@ class BpyTestConfig:
     module_list: str = field(default="")
     blender_exe: Path | None = field(default=None)
     norecursedirs: list[str] = field(default_factory=list)
+    include : list[str] = field(default_factory=list)
 
     collector_string: str = field(default="")
     keyword: str = field(default="")
@@ -106,6 +107,7 @@ class BpyTestConfig:
         self.module_list = pyproject_toml.get("module_list", "")
         self.norecursedirs = pyproject_toml.get("norecursedirs", [])
         self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
+        self.include = pyproject_toml.get("include", [])
 
     def as_dict(self) -> dict[str, Any]:
         """Returns the config as a json"""

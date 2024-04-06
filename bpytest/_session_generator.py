@@ -67,6 +67,9 @@ except ModuleNotFoundError:
 def main(config: BpyTestConfig):
     """Main function"""
 
+    for path in config.include:
+        sys.path.append(path)
+    
     sys.exit(wrap_session(config))
 
 
