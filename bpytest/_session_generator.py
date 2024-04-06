@@ -54,8 +54,8 @@ except:  # pylint: disable=bare-except
     bpy.ops.preferences.addon_enable(module="bpytest")
 
 try:
-    from bpytest.core.entity import BpyTestConfig
-    from bpytest.core.session import wrap_session
+    from bpytest.bpytest.entity import BpyTestConfig
+    from bpytest.bpytest.session import wrap_session
 except ModuleNotFoundError:
     print(
         "ModuleNotFoundError: Make sure bpytest is installed"

@@ -4,10 +4,10 @@ setup(
     name="bpytest",
     version="0.1",
     packages=find_packages(),
-    package_dir={"core": "core"},
+    package_dir={"bpytest": "bpytest"},
     entry_points={
         "console_scripts": [
-            "bpytest = core.main:main",
+            "bpytest = bpytest.main:main",
         ],
     },
     install_requires=[

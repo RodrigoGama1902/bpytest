@@ -14,7 +14,7 @@ bl_info = {
 
 __all__ = ["fixture", "unregister"]
 
-from .core import fixture
+from .bpytest import fixture
 
 
 def register():

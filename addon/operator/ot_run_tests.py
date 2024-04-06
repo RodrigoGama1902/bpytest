@@ -2,9 +2,9 @@ from pathlib import Path
 
 import bpy  # type:ignore
 
-from bpytest.core.collector import Collector
-from bpytest.core.entity import BpyTestConfig, CollectorString
-from bpytest.core.manager import TestManager
+from bpytest.bpytest.collector import Collector
+from bpytest.bpytest.entity import BpyTestConfig, CollectorString
+from bpytest.bpytest.manager import TestManager
 
 
 class BPYTEST_OT_Tests(bpy.types.Operator):
