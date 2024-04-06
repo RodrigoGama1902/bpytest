@@ -1,9 +1,9 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 setup(
     name="bpytest",
     version="0.1",
-    packages=find_packages(),
+    packages=["bpytest"],
     package_dir={"bpytest": "bpytest"},
     entry_points={
         "console_scripts": [
