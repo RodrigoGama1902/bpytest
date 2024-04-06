@@ -20,6 +20,10 @@ extraPaths = [
     "tests/fixtures/include_dir/",
 ]
 
+executionEnvironments = [
+    { root = "src/bpytest/bpytest/_session_generator.py", extraPaths = [ "src" ] },
+]
+
 [tool.pytest.ini_options]
 addopts = ["-p", "no:warnings"]
 norecursedirs = ["tests/fixtures/*"]

@@ -2,6 +2,10 @@
 # This is the main __init__.py module for the add-on bundle.
 # =============================================================================
 
+__all__ = ["fixture", "register", "unregister"]
+
+from .bpytest import fixture
+
 bl_info = {
     "name": "BpyTest",
     "description": "Unit Test for Blender Addons",
@@ -12,9 +16,6 @@ bl_info = {
     "category": "3D View",
 }
 
-__all__ = ["fixture", "unregister"]
-
-from .bpytest import fixture
 
 
 def register():

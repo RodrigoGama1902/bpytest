@@ -47,7 +47,7 @@ def _create_temp_addon_zip(addon_dir: Path) -> Path:
 try:
     bpy.ops.preferences.addon_enable(module="bpytest")
 except:  # pylint: disable=bare-except
-    addon_zip = _create_temp_addon_zip(Path(__file__).parent.parent)
+    addon_zip = _create_temp_addon_zip(Path(__file__).parent.parent / "src" / "bpytest")
     bpy.ops.preferences.addon_install(
         filepath=addon_zip.as_posix(), overwrite=True
     )
