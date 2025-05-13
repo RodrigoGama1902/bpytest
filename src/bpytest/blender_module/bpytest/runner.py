@@ -44,7 +44,7 @@ def execute(
     config: BpyTestConfig,
 ) -> ExecutionResult:
     """Executes the test function and returns the result"""
-
+    
     sys.path.append(str(pythonpath))
 
     spec = importlib.util.spec_from_file_location(
@@ -139,8 +139,6 @@ class TestRunner:
 
         # Enabling specified modules and bpytest
         module_list = self._bpytest_config.module_list.split(",")
-        module_list.append("bpytest")
-
         _enable_module_list(module_list)
 
     def _execute(self):
@@ -154,6 +152,8 @@ class TestRunner:
             session_info=self._session_info,
             config=self._bpytest_config,
         )
+        
+        print(execution_result)
 
         if not execution_result.success:
             self._test_unit.result_lines = execution_result.result_lines

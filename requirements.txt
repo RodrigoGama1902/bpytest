@@ -1,2 +1,5 @@
+fake-bpy-module_4.1
 colorama
 toml
+pytest
+python-dotenv

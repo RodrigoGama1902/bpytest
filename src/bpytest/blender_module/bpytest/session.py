@@ -27,7 +27,6 @@ class Session:
             keyword=self.config.keyword,
             norecursedirs=self.config.norecursedirs,
         )
-
         test_manager = TestManager(
             bpytest_config=self.config,
             collector=collector,

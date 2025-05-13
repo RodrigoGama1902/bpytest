@@ -1,4 +1,0 @@
-{
-    "blender.addon.loadDirectory": "src/bpytest",
-    "python.analysis.typeCheckingMode": "strict",
-}

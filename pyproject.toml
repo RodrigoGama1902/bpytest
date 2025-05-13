@@ -21,7 +21,7 @@ extraPaths = [
 ]
 
 executionEnvironments = [
-    { root = "src/bpytest/bpytest/_session_generator.py", extraPaths = [ "src" ] },
+    { root = "src/bpytest/blender_module/main.py", extraPaths = [ "src/bpytest/blender_module/" ] },
 ]
 
 [tool.pytest.ini_options]
@@ -29,8 +29,30 @@ addopts = ["-p", "no:warnings"]
 norecursedirs = ["tests/fixtures/*"]
 
 [tool.bpytest]
-blender_exe="C:/Program Files/Blender Foundation/Blender 4.0/blender.exe"
+blender_exe = "C:/Program Files/Blender Foundation/Blender 4.4/blender.exe"
 norecursedirs = ["tests/unit/*"]
 include = ["tests/fixtures/include_dir/",]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bpytest"
+version = "0.1"
+dependencies = [
+    "toml==0.10.2",
+    "colorama==0.4.6",
+]
+requires-python = ">=3.7"  # adjust as needed
+
+[project.scripts]
+bpytest = "main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src/bpytest"}
+
+[tool.setuptools.packages.find]
+where = ["src/bpytest"]
 
 

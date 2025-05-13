@@ -3,6 +3,21 @@ from pathlib import Path
 
 BPY_TEST_FILES = Path("tests/fixtures/bpytest_files")
 
+import os
+import shutil
+
+import pytest
+from dotenv import load_dotenv
+
+load_dotenv()  # Load variables from .env
+
+def _blender_exe() -> str:
+    """Fixture to get the Blender executable path."""
+    path = os.getenv("BLENDER_EXE", "blender")
+    if not shutil.which(path):
+        pytest.fail(f"Blender executable not found: {path}")
+    return path
+
 
 def assert_execute_test_unit(
     expect_success: bool,
@@ -12,7 +27,7 @@ def assert_execute_test_unit(
 ) -> tuple[int, list[str]]:
     """Execute a test unit and assert the result"""
 
-    cmd = ["bpytest", f"{test_file}::{test_name}"]
+    cmd = ["bpytest",  f"--blender-exe={_blender_exe()}", f"{test_file}::{test_name}"]
     if nocapture:
         cmd.append("-s")
 
@@ -24,7 +39,7 @@ def assert_execute_tests_by_keyword(
 ) -> tuple[int, list[str]]:
     """Execute tests by keyword and assert the result"""
 
-    cmd = ["bpytest", "-k", keyword]
+    cmd = ["bpytest", f"--blender-exe={_blender_exe()}", "-k", keyword]
     if nocapture:
         cmd.append("-s")
 
@@ -36,7 +51,7 @@ def assert_execute_all_tests(
 ) -> tuple[int, list[str]]:
     """Execute all tests and assert the result"""
 
-    cmd = ["bpytest"]
+    cmd = ["bpytest", f"--blender-exe={_blender_exe()}"]
     if nocapture:
         cmd.append("-s")
 
