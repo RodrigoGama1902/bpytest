@@ -47,7 +47,7 @@ dependencies = [
 requires-python = ">=3.7"  # adjust as needed
 
 [project.scripts]
-bpytest = "main:main"
+bpytest = "bpytest.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src/bpytest"}
