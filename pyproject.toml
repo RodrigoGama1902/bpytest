@@ -38,21 +38,20 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bpytest"
+name = "your-package-name"
 version = "0.1"
 dependencies = [
     "toml==0.10.2",
-    "colorama==0.4.6",
 ]
-requires-python = ">=3.7"  # adjust as needed
+requires-python = ">=3.7"
 
 [project.scripts]
-bpytest = "bpytest.main:main"
+yourcli = "your_package_name.main:main"
 
 [tool.setuptools]
-package-dir = {"" = "src/bpytest"}
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
-where = ["src/bpytest"]
+where = ["src"]
 
 
