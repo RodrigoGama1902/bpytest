@@ -221,7 +221,7 @@ def main() -> None:
         bpytest_config.norecursedirs = args.norecursedirs
     if args.show_config:
         print("Current configuration:")
-        pprint(bpytest_config.as_dict())
+        pprint(bpytest_config.__dict__)
         sys.exit(0)
 
     # ==============================================================
