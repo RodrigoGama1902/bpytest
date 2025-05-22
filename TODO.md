@@ -57,6 +57,11 @@
     which lead to some problems like strange imports like "from bpytest.bpytest.runner import execute"
 - [ ] Add pip distribution
 
+# Pytests
+
+- [ ] Test enable_addons parameter
+- [ ] Test link_addons parameter
+
 
 
 

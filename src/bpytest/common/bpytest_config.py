@@ -36,12 +36,41 @@ class BpyTestConfig:
             )
         },
     )
-    module_list: str = field(
-        default="",
+    # install_addons: list[str] = field(
+    #     default_factory=list,
+    #     metadata={
+    #         "help": (
+    #             "List of addon zip files to be installed before running the tests, "
+    #         )
+    #     },
+    # )
+    
+    link_addons: list[str] = field(
+        default_factory=list,
         metadata={
             "help": (
-                "List of modules to be loaded before running the tests, "
-                "separated by commas."
+                "List of addon directories to be linked and enabled before running the tests. "
+            )
+        },
+    )
+    
+    # disable_addons: list[str] = field(
+    #     default_factory=list,
+    #     metadata={
+    #         "help": (
+    #             "List of addon names to be disabled before running the tests, "
+    #         )
+    #     },
+    # )
+    
+    
+    enable_addons: list[str] = field(
+        default_factory=list,
+        metadata={
+            "help": (
+                "List of already installed add-ons to be enabled before running the tests. "
+                "If your add-on is already installed in the Blender installation that you will run the tests, "
+                "use this option to enable it. "
             )
         },
     )
@@ -101,9 +130,10 @@ class BpyTestConfig:
 
         self.pythonpath = Path(pyproject_data.get("pythonpath", "")).absolute()
         self.nocapture = pyproject_data.get("nocapture", False)
-        self.module_list = pyproject_data.get("module_list", "")
+        self.enable_addons = pyproject_data.get("enable_addons", [])
         self.norecursedirs = pyproject_data.get("norecursedirs", [])
         self.include = pyproject_data.get("include", [])
+        self.link_addons = pyproject_data.get("link_addons", [])
 
     def as_json(self) -> str:
         """Returns the config as a json"""

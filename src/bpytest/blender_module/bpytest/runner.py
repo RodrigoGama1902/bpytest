@@ -45,7 +45,7 @@ def execute(
     config: BpyTestConfig,
 ) -> ExecutionResult:
     """Executes the test function and returns the result"""
-    
+
     sys.path.append(str(pythonpath))
 
     spec = importlib.util.spec_from_file_location(
@@ -88,12 +88,39 @@ def execute(
     return ExecutionResult(True)
 
 
-def _enable_module_list(module_list: list[str]):
+def _enable_module_list(enable_addons: list[str], link_addons: list[str]):
     """Enables the specified modules in the blender environment"""
 
-    for module in module_list:
-        if module.strip() != "":
-            bpy.ops.preferences.addon_enable(module=module.strip())
+    enable_addons = enable_addons.copy()
+
+    if link_addons:
+        # C:\\Users\\rodri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.1
+        blender_data = Path(bpy.utils.resource_path("USER"))
+        addons_path = blender_data / "scripts" / "addons"
+        if not addons_path.exists():
+            os.makedirs(addons_path)
+
+        # link directories to here
+        for addon in link_addons:
+            addon_path = Path(addon).absolute().resolve()
+            if not addon_path.exists():
+                print(f"Failed to link addon {addon_path}, it does not exist")
+                continue
+
+            addon_link = addons_path / addon_path.name
+            if not addon_link.exists():
+                os.symlink(addon_path, addon_link, target_is_directory=True)            
+            # Add the addon to the enable_addons list
+            enable_addons.append(addon_path.name)
+
+    for module in enable_addons:
+        bpy.ops.preferences.addon_enable(module=module)
+        # if result != {"FINISHED"}:
+        #     print(
+        #         f"Error enabling module {module.strip()}. "
+        #         "Please check if the module is installed."
+        #     )
+        #     return False
 
 
 class TestRunner:
@@ -139,8 +166,10 @@ class TestRunner:
         bpy.ops.wm.read_factory_settings()
 
         # Enabling specified modules and bpytest
-        module_list = self._bpytest_config.module_list.split(",")
-        _enable_module_list(module_list)
+        enable_addons = self._bpytest_config.enable_addons
+        link_addons = self._bpytest_config.link_addons
+
+        _enable_module_list(enable_addons, link_addons)
 
     def _execute(self):
 
@@ -153,7 +182,7 @@ class TestRunner:
             session_info=self._session_info,
             config=self._bpytest_config,
         )
-        
+
         print(execution_result)
 
         if not execution_result.success:
