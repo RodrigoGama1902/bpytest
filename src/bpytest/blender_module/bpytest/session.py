@@ -21,7 +21,7 @@ class Session:
         self.config = config
         self.session_info = SessionInfo(id=random.randint(0, 10000))
 
-    def execute(self) -> ExitCode:
+    def execute(self, instance_id : str) -> ExitCode:
         """Execute the test session"""
 
         collector = Collector(
@@ -34,11 +34,11 @@ class Session:
             collector=collector,
             session_info=self.session_info,
         )
-        return test_manager.execute()
+        return test_manager.execute(instance_id)
 
 
-def wrap_session(config: BpyTestConfig) -> ExitCode:
+def wrap_session(config: BpyTestConfig, instance_id : str) -> ExitCode:
     """Wrapper function for the test session"""
 
     session = Session(config)
-    return session.execute()
+    return session.execute(instance_id)

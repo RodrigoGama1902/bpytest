@@ -137,10 +137,10 @@ class TestManager:
         self._finalize_session_fixtures()
         self._end_time()
 
-    def execute(self) -> ExitCode:
+    def execute(self, instance_id : str) -> ExitCode:
         """Executes the test session"""
 
-        print_header("Test session starts")
+        print_header(f"[{instance_id}] Test session starts")
         self._run_tests(self._collector)
 
         print_failed(self._finished_tests_list)

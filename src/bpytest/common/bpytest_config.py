@@ -21,9 +21,9 @@ def get_bpyconfig_attr_help(attr: str) -> str:
 class BpyTestConfig:
     """Class that represents the configuration of the test session."""
 
-    blender_exe: Path = field(
-        default=Path(), metadata={"help": "Path to the blender executable"}
-    )
+    # ===========================================
+    # Project Settings
+    # ===========================================
     pythonpath: Path = field(
         default=Path.cwd(), metadata={"help": "Path python cwd"}
     )
@@ -45,17 +45,6 @@ class BpyTestConfig:
             )
         },
     )
-    blender_exe_id_list: list[str] = field(
-        default_factory=list,
-        metadata={
-            "help": (
-                "List of blender executable ids to be used for the test session, "
-                "each specified ID will be used to find the corresponding env variable with the path to the blender executable. "
-                "e.g. 'blender_3_5' will look for the env variable 'BLENDER_3_5' and use its value as the path to the blender executable. "
-                "This is useful for testing multiple versions of blender in the same test session."
-            )
-        },
-    )
     norecursedirs: list[str] = field(
         default_factory=list,
         metadata={
@@ -74,6 +63,10 @@ class BpyTestConfig:
             )
         },
     )
+    
+    # ===========================================
+    # Test Session Config
+    # ===========================================
     collector_string: str = field(
         default="", metadata={"help": "Test file or directory path"}
     )
@@ -86,9 +79,9 @@ class BpyTestConfig:
 
     def load_from_json(self, json_string: str):
         """Loads the config from a dict"""
-        
+
         data: dict[str, Any] = json.loads(json_string)
-        
+
         for key, value in data.items():
             try:
                 field_type = getattr(
@@ -97,36 +90,24 @@ class BpyTestConfig:
                 if field_type is not None:
                     setattr(self, key, field_type(value))
                 else:
-                    setattr(self, key, value)              
+                    setattr(self, key, value)
             except ValueError as exc:
                 raise ValueError(
-                    f"Invalid value for {key}: {value} "
-                    f"({type(value)})"
+                    f"Invalid value for {key}: {value} " f"({type(value)})"
                 ) from exc
 
-    def load_from_pyproject_toml(self, pyproject_toml_path: Path):
+    def load_from_pyproject_data(self, pyproject_data : dict[str, Any]):
         """Loads the config file from pyproject.toml"""
 
-        import toml  # type: ignore
-
-        try:
-            if not pyproject_toml_path.exists():
-                raise FileNotFoundError("pyproject.toml not found")
-
-            pyproject_toml = toml.load(pyproject_toml_path)["tool"]["bpytest"]
-        except KeyError:
-            print("tool.bpytest not found")
-            return
-
-        self.pythonpath = Path(pyproject_toml.get("pythonpath", "")).absolute()
-        self.nocapture = pyproject_toml.get("nocapture", False)
-        self.module_list = pyproject_toml.get("module_list", "")
-        self.norecursedirs = pyproject_toml.get("norecursedirs", [])
-        self.include = pyproject_toml.get("include", [])
+        self.pythonpath = Path(pyproject_data.get("pythonpath", "")).absolute()
+        self.nocapture = pyproject_data.get("nocapture", False)
+        self.module_list = pyproject_data.get("module_list", "")
+        self.norecursedirs = pyproject_data.get("norecursedirs", [])
+        self.include = pyproject_data.get("include", [])
 
     def as_json(self) -> str:
         """Returns the config as a json"""
-        
+
         json_data: dict[str, Any] = {}
         for key, value in self.__dict__.items():
             # Handle Path objects, that is not supported by json

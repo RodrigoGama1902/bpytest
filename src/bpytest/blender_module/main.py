@@ -16,29 +16,34 @@ sys.path.append(Path(__file__).parent.as_posix())
 from bpytest import wrap_session  # pylint: disable=wrong-import-position
 
 
-def main(config: BpyTestConfig):
+def main(config: BpyTestConfig, instance_id: str) -> int:
     """Main function"""
 
     for path in config.include:
         sys.path.append(path)
         
-    sys.exit(wrap_session(config))
+    sys.exit(wrap_session(config, instance_id))
 
 
 try:
     # Get the JSON string from command-line arguments
+    instance_id = ""
     data_json: str = ""
     for arg in sys.argv:
         if arg.startswith("config="):
             data_json = arg[7:]
-            break
+        if arg.startswith("instance_id"):
+            instance_id = arg.split("=")[1]
+        
     if not data_json:
         raise ValueError("No config argument found")
+    if not instance_id:
+        raise ValueError("No instance_id argument found")
     
     config = BpyTestConfig()
     config.load_from_json(data_json)
 
-    main(config)
+    main(config, instance_id)
 except Exception as e:
     print(e)
     print(traceback.format_exc())
