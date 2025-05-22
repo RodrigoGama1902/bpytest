@@ -21,8 +21,8 @@ def get_bpyconfig_attr_help(attr: str) -> str:
 class BpyTestConfig:
     """Class that represents the configuration of the test session."""
 
-    blender_exe: Path | None = field(
-        default=None, metadata={"help": "Path to blender executable"}
+    blender_exe: Path = field(
+        default=Path(), metadata={"help": "Path to the blender executable"}
     )
     pythonpath: Path = field(
         default=Path.cwd(), metadata={"help": "Path python cwd"}
@@ -90,14 +90,6 @@ class BpyTestConfig:
         data: dict[str, Any] = json.loads(json_string)
         
         for key, value in data.items():
-
-            if key == "blender_exe":
-                if not isinstance(value, str):
-                    raise ValueError(
-                        f"blender_exe must be a string, not {type(value)} "
-                    )
-                setattr(self, key, Path(value))
-                continue
             try:
                 field_type = getattr(
                     self.__dataclass_fields__[key], "type", None
