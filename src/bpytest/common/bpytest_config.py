@@ -130,7 +130,7 @@ class BpyTestConfig:
 
         try:
             if not pyproject_toml_path.exists():
-                raise Exception("pyproject.toml not found")
+                raise FileNotFoundError("pyproject.toml not found")
 
             pyproject_toml = toml.load(pyproject_toml_path)["tool"]["bpytest"]
         except KeyError:
