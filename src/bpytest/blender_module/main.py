@@ -34,12 +34,9 @@ try:
             break
     if not data_json:
         raise ValueError("No config argument found")
-
-    # Deserialize the JSON string back to a Python object
-    data = json.loads(data_json)
-
+    
     config = BpyTestConfig()
-    config.load_from_dict(data)
+    config.load_from_json(data_json)
 
     main(config)
 except Exception as e:

@@ -18,6 +18,9 @@ pythonPlatform = "Windows"
 extraPaths = ["..", "tests/fixtures/include_dir/"]
 
 executionEnvironments = [
+    { root = "tests/unit/", extraPaths = [
+        "src/bpytest/common",
+    ] },
     { root = "src/bpytest/blender_module/main.py", extraPaths = [
         "src/bpytest/blender_module/",
         "src/bpytest/common",
@@ -31,6 +34,9 @@ executionEnvironments = [
 [tool.pytest.ini_options]
 addopts = ["-p", "no:warnings"]
 norecursedirs = ["tests/fixtures/*"]
+pythonpath = [
+  "src/bpytest/common/",
+]
 
 [tool.bpytest]
 norecursedirs = ["tests/unit/*"]

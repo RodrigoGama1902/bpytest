@@ -84,44 +84,33 @@ class BpyTestConfig:
         },
     )
 
-    def load_from_dict(self, data: dict[str, Any]):
+    def load_from_json(self, json_string: str):
         """Loads the config from a dict"""
+        
+        data: dict[str, Any] = json.loads(json_string)
+        
         for key, value in data.items():
 
             if key == "blender_exe":
+                if not isinstance(value, str):
+                    raise ValueError(
+                        f"blender_exe must be a string, not {type(value)} "
+                    )
                 setattr(self, key, Path(value))
                 continue
-            if key == "blender_exe_id_list":
-                # check if value is a list
-                if isinstance(value, str):
-                    value = value.split(",")
-                for idx, i in enumerate(value):
-                    value[idx] = i.replace("'", "").strip()
-                setattr(self, key, value)
-                continue
-            if value == "True":
-                setattr(self, key, True)
-            elif value == "False":
-                setattr(self, key, False)
-            elif value == "None":
-                setattr(self, key, None)
-            elif value.startswith("[") and value.endswith("]"):
-                value = value[1:-1].split(",")
-                for idx, i in enumerate(value):
-                    value[idx] = i.replace("'", "").strip()
-                setattr(self, key, value)
-            elif hasattr(self, key):
+            try:
                 field_type = getattr(
                     self.__dataclass_fields__[key], "type", None
                 )
                 if field_type is not None:
-                    # Handle special cases, such as Path
-                    if field_type == Path:
-                        setattr(self, key, Path(value))
-                    else:
-                        setattr(self, key, field_type(value))
+                    setattr(self, key, field_type(value))
                 else:
-                    setattr(self, key, value)
+                    setattr(self, key, value)              
+            except ValueError as exc:
+                raise ValueError(
+                    f"Invalid value for {key}: {value} "
+                    f"({type(value)})"
+                ) from exc
 
     def load_from_pyproject_toml(self, pyproject_toml_path: Path):
         """Loads the config file from pyproject.toml"""
@@ -143,21 +132,15 @@ class BpyTestConfig:
         self.norecursedirs = pyproject_toml.get("norecursedirs", [])
         self.include = pyproject_toml.get("include", [])
 
-    def as_dict(self) -> dict[str, Any]:
-        """Returns the config as a json"""
-
-        json_data: dict[str, Any] = {}
-
-        for key, value in self.__dict__.items():
-            # check if is enum
-            if hasattr(value, "value"):
-                json_data[key] = value.value
-            else:
-                json_data[key] = str(value)
-
-        return json_data
-
     def as_json(self) -> str:
         """Returns the config as a json"""
+        
+        json_data: dict[str, Any] = {}
+        for key, value in self.__dict__.items():
+            # Handle Path objects, that is not supported by json
+            if hasattr(value, "as_posix"):
+                json_data[key] = value.as_posix()
+                continue
+            json_data[key] = value
 
-        return json.dumps(self.as_dict())
+        return json.dumps(json_data)

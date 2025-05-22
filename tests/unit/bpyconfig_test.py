@@ -1,0 +1,98 @@
+import json
+from pathlib import Path
+
+from bpytest_config import BpyTestConfig
+
+
+def test_as_as_json():
+    """Test converting configuration to a dictionary."""
+
+    config = BpyTestConfig()
+    config.blender_exe = Path("/path/to/blender")
+    config.pythonpath = Path("/path/to/python")
+    config.nocapture = True
+    config.module_list = "test_module"
+    config.norecursedirs = ["dir1", "dir2"]
+    config.include = ["test1", "test2"]
+    config.blender_exe_id_list = ["blender_3_5"]
+    config.collector_string = "test_file_or_directory"
+    config.keyword = "test_keyword"
+
+    json_string = config.as_json()
+    assert json.loads(json_string) == {
+        "blender_exe": "/path/to/blender",
+        "pythonpath": "/path/to/python",
+        "nocapture": True,
+        "module_list": "test_module",
+        "blender_exe_id_list": ["blender_3_5"],
+        "norecursedirs": ["dir1", "dir2"],
+        "include": ["test1", "test2"],
+        "collector_string": "test_file_or_directory",
+        "keyword": "test_keyword",
+    }, "JSON string does not match expected dictionary"
+    assert json_string == (
+        '{"blender_exe": "/path/to/blender",'
+        ' "pythonpath": "/path/to/python",'
+        ' "nocapture": true,'
+        ' "module_list": "test_module",'
+        ' "blender_exe_id_list": ["blender_3_5"],'
+        ' "norecursedirs": ["dir1", "dir2"],'
+        ' "include": ["test1", "test2"],'
+        ' "collector_string": "test_file_or_directory",'
+        ' "keyword": "test_keyword"}'
+    ), "JSON string does not match expected string"
+
+
+def test_load_from_json():
+    """Test loading configuration from a dictionary."""
+
+    config = BpyTestConfig()
+    config.load_from_json(
+        (
+            '{"blender_exe": "/path/to/blender",'
+            ' "pythonpath": "/path/to/python",'
+            ' "nocapture": true,'
+            ' "module_list": "test_module",'
+            ' "blender_exe_id_list": ["blender_3_5"],'
+            ' "norecursedirs": ["dir1", "dir2"],'
+            ' "include": ["test1", "test2"],'
+            ' "collector_string": "test_file_or_directory",'
+            ' "keyword": "test_keyword"}'
+        )
+    )
+    assert config.pythonpath == Path("/path/to/python")
+    assert config.nocapture is True
+    assert config.module_list == "test_module"
+    assert config.norecursedirs == ["dir1", "dir2"]
+    assert config.include == ["test1", "test2"]
+
+
+def test_serialization_and_load():
+    """Test serialization and loading of configuration."""
+
+    config = BpyTestConfig()
+    config.blender_exe = Path("/path/to/blender")
+    config.pythonpath = Path("/path/to/python")
+    config.nocapture = True
+    config.module_list = "test_module"
+    config.norecursedirs = ["dir1", "dir2"]
+    config.include = ["test1", "test2"]
+    config.blender_exe_id_list = ["blender_3_5"]
+    config.collector_string = "test_file_or_directory"
+    config.keyword = "test_keyword"
+
+    json_string = config.as_json() # Serialize to JSON
+
+    new_config = BpyTestConfig()
+    new_config.load_from_json(json_string)
+
+    assert new_config.blender_exe == config.blender_exe
+    assert new_config.pythonpath == config.pythonpath
+    assert new_config.nocapture == config.nocapture
+    assert new_config.module_list == config.module_list
+    assert new_config.norecursedirs == config.norecursedirs
+    assert new_config.include == config.include
+    assert new_config.blender_exe_id_list == config.blender_exe_id_list
+    assert new_config.collector_string == config.collector_string
+    assert new_config.keyword == config.keyword
+    
