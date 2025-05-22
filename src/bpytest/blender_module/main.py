@@ -9,8 +9,8 @@ from pathlib import Path
 try:
     import bpytest  # pylint: disable=unused-import
     raise RuntimeError(
-        "bpytest module already exists in the sys.modules"
-        " and this is not allowed. Make sure that there is no 'bpytest'"
+        "bpytest module already exists in the sys.modules blender python environment"
+        " and this is not allowed. Make sure that there is no 'bpytest' "
         "installed directly in the blender python environment or as an addon."
     )
 except ImportError:
@@ -19,7 +19,7 @@ except ImportError:
 try:
     import bpytest_config  # pylint: disable=unused-import
     raise RuntimeError(
-        "bpytest_config module already exists in the sys.modules"
+        "bpytest_config module already exists in the sys.modules blender python environment"
         " and this is not allowed. Make sure that there is no 'bpytest_config' "
         "installed directly in the blender python environment or as an addon."
     )
