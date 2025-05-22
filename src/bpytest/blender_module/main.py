@@ -5,10 +5,15 @@ import sys
 import traceback
 from pathlib import Path
 
-# Append current work directory to sys.path so bpytest is accessible 
+# Append src/bpytest/common so any common module that is accessible
+# to the main entry point is also accessible inside the blender subprocess
+sys.path.append(Path(Path(__file__).parent.parent / "common").as_posix())
+from bpytest_config import BpyTestConfig  # pylint: disable=wrong-import-position
+
+# Append current work directory to sys.path so bpytest is accessible
 # inside the blender subprocess
 sys.path.append(Path(__file__).parent.as_posix())
-from bpytest import BpyTestConfig, wrap_session  # pylint: disable=wrong-import-position
+from bpytest import wrap_session  # pylint: disable=wrong-import-position
 
 
 def main(config: BpyTestConfig):

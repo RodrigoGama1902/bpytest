@@ -2,8 +2,10 @@
 
 import random
 
+from bpytest_config import BpyTestConfig
+
 from .collector import Collector
-from .entity import BpyTestConfig, CollectorString, SessionInfo
+from .entity import CollectorString, SessionInfo
 from .manager import TestManager
 from .types import ExitCode
 

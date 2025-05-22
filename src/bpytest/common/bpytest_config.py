@@ -24,7 +24,7 @@ class BpyTestConfig:
 
     collector_string: str = field(default="")
     keyword: str = field(default="")
-
+    
     def load_from_dict(self, data: dict[str, Any]):
         """Loads the config from a dict"""
         for key, value in data.items():
@@ -75,7 +75,6 @@ class BpyTestConfig:
         self.nocapture = pyproject_toml.get("nocapture", False)
         self.module_list = pyproject_toml.get("module_list", "")
         self.norecursedirs = pyproject_toml.get("norecursedirs", [])
-        self.blender_exe = Path(pyproject_toml.get("blender_exe", Path.cwd()))
         self.include = pyproject_toml.get("include", [])
 
     def as_dict(self) -> dict[str, Any]:

@@ -7,7 +7,9 @@ from enum import Enum, auto
 from pathlib import Path
 from typing import Any, Callable, Generator
 
-from .entity import BpyTestConfig, SessionInfo
+from bpytest_config import BpyTestConfig
+
+from .entity import SessionInfo
 
 # Fixture function
 FixtureFunction = Callable[..., Any]

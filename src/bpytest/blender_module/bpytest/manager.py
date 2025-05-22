@@ -2,14 +2,10 @@ import importlib.util
 import time
 from pathlib import Path
 
+from bpytest_config import BpyTestConfig
+
 from .collector import Collector, collect_conftest_files
-from .entity import (
-    BColors,
-    BpyTestConfig,
-    CollectorString,
-    SessionInfo,
-    TestUnit,
-)
+from .entity import BColors, CollectorString, SessionInfo, TestUnit
 from .fixtures import Scope, fixture_manager
 from .print_helper import print_failed, print_header
 from .runner import TestRunner

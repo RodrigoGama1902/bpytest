@@ -7,8 +7,9 @@ from pathlib import Path
 from typing import Any
 
 import bpy
+from bpytest_config import BpyTestConfig
 
-from .entity import BpyTestConfig, SessionInfo, TestUnit
+from .entity import SessionInfo, TestUnit
 from .exception import InvalidFixtureName
 from .fixtures import execute_finalize_request, inspect_func_for_fixtures
 
