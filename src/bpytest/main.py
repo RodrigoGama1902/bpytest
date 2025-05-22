@@ -4,8 +4,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from common.bpytest_config import BpyTestConfig  # type: ignore[import]
 from dotenv import load_dotenv
+
+from .common.bpytest_config import BpyTestConfig  # type: ignore[import]
 
 BLENDER_MODULE_PATH = Path(__file__).parent / "blender_module"
 
@@ -98,7 +99,7 @@ def main() -> None:
     if envfile.exists():
         load_dotenv(envfile.as_posix())
         
-    bpytest_config.blender_exe = os.getenv("BLENDER_EXE", None)
+    bpytest_config.blender_exe = Path(os.getenv("BLENDER_EXE", ""))
 
     # ==========================================
     # Handle PyProject.toml
@@ -124,7 +125,7 @@ def main() -> None:
     if bpytest_config.blender_exe is None:
         print("Blender executable not specified")
         sys.exit(1)
-    if not bpytest_config.blender_exe.exists():
+    if not bpytest_config.blender_exe.is_file():
         print("Path to blender executable does not exist")
         sys.exit(1)
 
