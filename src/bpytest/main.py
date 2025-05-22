@@ -26,12 +26,12 @@ def _get_blender_exe_list(
     if blender_exr_arg is not None:
         blender_exe = Path(blender_exr_arg)
         if not blender_exe.is_file():
-            print(f"Blender executable {blender_exe} does not exist")
+            print(f"--blender_exe arg executable {blender_exe} does not exist")
             sys.exit(1)
         return {"main": blender_exe}
 
     # If blender_exe_id_list was not specified, use the BLENDER_EXE environment variable
-    if blender_exe_id_list is None:
+    if not blender_exe_id_list:
         blender_exe = Path(os.getenv("BLENDER_EXE", ""))
         if not blender_exe:
             print(
