@@ -10,6 +10,7 @@ def test_as_as_json():
     config = BpyTestConfig()
     config.pythonpath = Path("/path/to/python")
     config.nocapture = True
+    config.link_addons = ["test_module"]
     config.enable_addons = ["test_module"]
     config.norecursedirs = ["dir1", "dir2"]
     config.include = ["test1", "test2"]
@@ -20,6 +21,7 @@ def test_as_as_json():
     assert json.loads(json_string) == {
         "pythonpath": "/path/to/python",
         "nocapture": True,
+        "link_addons": ["test_module"],
         "enable_addons": ["test_module"],
         "norecursedirs": ["dir1", "dir2"],
         "include": ["test1", "test2"],
@@ -29,6 +31,7 @@ def test_as_as_json():
     assert json_string == (
         '{"pythonpath": "/path/to/python",'
         ' "nocapture": true,'
+        ' "link_addons": ["test_module"],'
         ' "enable_addons": ["test_module"],'
         ' "norecursedirs": ["dir1", "dir2"],'
         ' "include": ["test1", "test2"],'
