@@ -13,7 +13,7 @@ load_dotenv()  # Load variables from .env
 
 def _blender_exe() -> str:
     """Fixture to get the Blender executable path."""
-    path = os.getenv("BLENDER_EXE", "blender")
+    path = os.getenv("TESTS_BLENDER_EXE", "blender")
     if not shutil.which(path):
         pytest.fail(f"Blender executable not found: {path}")
     return path
