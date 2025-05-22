@@ -1,21 +1,24 @@
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 from common.bpytest_config import BpyTestConfig  # type: ignore[import]
+from dotenv import load_dotenv
 
 BLENDER_MODULE_PATH = Path(__file__).parent / "blender_module"
 
+
 def _call_subprocess(config: BpyTestConfig) -> int:
     """Call the subprocess to execute the test session"""
-    
+
     if config.blender_exe is None:
         print("Blender executable not found")
         return 1
 
     generator_filepath = BLENDER_MODULE_PATH / "main.py"
-    
+
     cmd = [
         config.blender_exe.as_posix(),
         "--background",
@@ -66,22 +69,49 @@ def main() -> None:
     parser.add_argument(
         "-s", "--nocapture", action="store_true", help="Disable output capture"
     )
+
     parser.add_argument(
         "-k",
         "--keyword",
         help="Run only tests that match the given keyword expression",
     )
 
+    parser.add_argument(
+        "-e",
+        "--envfile",
+        help="Path to the environment file",
+    )
+
     args = parser.parse_args()
-    
     bpytest_config: BpyTestConfig = BpyTestConfig()
-    
+
+    # ==========================================
+    # Handle the environment file
+    # ==========================================
+    envfile = Path.cwd() / ".env"
+    if args.envfile is not None:
+        specified_envfile = Path(args.envfile)
+        if not specified_envfile.exists():
+            print("Specified environment file does not exist")
+            sys.exit(1)
+        envfile = specified_envfile
+    if envfile.exists():
+        load_dotenv(envfile.as_posix())
+        
+    bpytest_config.blender_exe = os.getenv("BLENDER_EXE", None)
+
+    # ==========================================
+    # Handle PyProject.toml
+    # ==========================================
     pyproject_path = Path.cwd() / "pyproject.toml"
     if pyproject_path.exists():
         bpytest_config.load_from_pyproject_toml(pyproject_path)
-
-    bpytest_config.nocapture = args.nocapture
-
+        
+    # ==========================================
+    # Handle Args Input
+    # ==========================================
+    if args.nocapture is not None:
+        bpytest_config.nocapture = args.nocapture
     if args.keyword is not None:
         bpytest_config.keyword = args.keyword
     if args.collector_string is not None:
