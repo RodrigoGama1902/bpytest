@@ -123,10 +123,14 @@ def main() -> None:
         bpytest_config.blender_exe = Path(args.blender_exe)
 
     if bpytest_config.blender_exe is None:
-        print("Blender executable not specified")
+        print(
+            "Blender executable not specified. "
+            "Use --blender-exe argument or set the BLENDER_EXE environment variable. "
+            "You can also set it in the .env file."
+        )
         sys.exit(1)
     if not bpytest_config.blender_exe.is_file():
-        print("Path to blender executable does not exist")
+        print("Specified Blender executable does not exist")
         sys.exit(1)
 
     sys.exit(_call_subprocess(bpytest_config))
