@@ -3,10 +3,14 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from pprint import pprint
 
 from dotenv import load_dotenv
 
-from .common.bpytest_config import BpyTestConfig  # type: ignore[import]
+from .common.bpytest_config import (  # type: ignore[import]
+    BpyTestConfig,
+    get_bpyconfig_attr_help,
+)
 
 BLENDER_MODULE_PATH = Path(__file__).parent / "blender_module"
 
@@ -49,14 +53,12 @@ def main() -> None:
         "collector_string",
         nargs="?",
         default=".",
-        help="Test file or directory path",
+        help=get_bpyconfig_attr_help("collector_string"),
     )
 
     # Optional arguments
     parser.add_argument(
-        "-be",
-        "--blender-exe",
-        help="Path to blender executable",
+        "-be", "--blender-exe", help=get_bpyconfig_attr_help("blender_exe")
     )
 
     # add no norecursedirs, will be a list for string
@@ -64,23 +66,32 @@ def main() -> None:
         "-nrd",
         "--norecursedirs",
         nargs="*",
-        help="List of directories to be excluded from the test search",
+        help=get_bpyconfig_attr_help("norecursedirs"),
     )
 
     parser.add_argument(
-        "-s", "--nocapture", action="store_true", help="Disable output capture"
+        "-s",
+        "--nocapture",
+        action="store_true",
+        help=get_bpyconfig_attr_help("nocapture"),
     )
 
     parser.add_argument(
         "-k",
         "--keyword",
-        help="Run only tests that match the given keyword expression",
+        help=get_bpyconfig_attr_help("keyword"),
     )
 
     parser.add_argument(
         "-e",
         "--envfile",
         help="Path to the environment file",
+    )
+
+    parser.add_argument(
+        "--show-config",
+        action="store_true",
+        help="Show the current configuration and exit",
     )
 
     args = parser.parse_args()
@@ -98,7 +109,7 @@ def main() -> None:
         envfile = specified_envfile
     if envfile.exists():
         load_dotenv(envfile.as_posix())
-        
+
     bpytest_config.blender_exe = Path(os.getenv("BLENDER_EXE", ""))
 
     # ==========================================
@@ -107,7 +118,7 @@ def main() -> None:
     pyproject_path = Path.cwd() / "pyproject.toml"
     if pyproject_path.exists():
         bpytest_config.load_from_pyproject_toml(pyproject_path)
-        
+
     # ==========================================
     # Handle Args Input
     # ==========================================
@@ -121,6 +132,11 @@ def main() -> None:
         bpytest_config.norecursedirs = args.norecursedirs
     if args.blender_exe is not None:
         bpytest_config.blender_exe = Path(args.blender_exe)
+
+    if args.show_config:
+        print("Current configuration:")
+        pprint(bpytest_config.as_dict())
+        sys.exit(0)
 
     if bpytest_config.blender_exe is None:
         print(
