@@ -59,10 +59,14 @@
 
 # Code
 
+- [ ] Currently its not clear if the test failed because of the test it self, or because some not handled exception or
+blender crash. Find a way to resolve this.
+- [ ] rename blender_exe_id_list > blender_exe_env_list. make sure the cli arg and the class attr will be updated
 - [ ] Create a print module in the common/ dir, to be used to print info, warning and error messages from bpytest
 - [ ] Inside the bpytest blender module print() is used for test info, which is not the best way to do it since can be confused with the debug output or 
 not relevant messages. these messages should be printed from a special function so anyone knows that this is important print
 - [ ] Create a class to represent th PyProject.toml file, so its easier to read and write, and document
+- [ ] Implement auto Blender download and install
 
 # python_dependencies
 
@@ -73,6 +77,7 @@ so the dependency installation dont break the current installation
 
 - [ ] Test enable_addons parameter
 - [ ] Test link_addons parameter
+- [ ] Test configuration file load
 - [ ] Add tests for python_dependencies
 
 

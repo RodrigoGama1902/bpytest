@@ -14,10 +14,22 @@ from dotenv import load_dotenv
 
 from .common.bpytest_config import (  # type: ignore[import]
     BpyTestConfig,
-    get_bpyconfig_attr_help,
+    ConfigFileBlenderLevel,
+    ConfigFilePackageLevel,
+    SessionConfig,
 )
 
 BLENDER_MODULE_PATH = Path(__file__).parent / "blender_module"
+
+def _print_config_file_help() -> None:
+    """Print the help for the config file"""
+
+    print("================================================================")
+    print("Config file help (pyproject.toml):")
+    print("================================================================\n")
+
+    print(ConfigFileBlenderLevel.help())
+    print(ConfigFilePackageLevel.help())
 
 
 def _get_blender_exe_list(
@@ -71,7 +83,7 @@ def _get_blender_exe_list(
             )
             sys.exit(1)
         blender_exe_list[blender_exe_id] = blender_exe
-        
+
     if not blender_exe_list:
         print(
             "No blender executable found. "
@@ -97,12 +109,12 @@ def _load_pyproject_toml(pyproject_path: Path) -> dict[str, Any]:
 def _isolate_blender_installation(blender_exe: Path) -> tuple[Path, Path]:
     """Create a temporary directory to isolate the blender installation and a portable directory
     This is used to avoid conflicts with the user configuration files and add-ons from the original installation
-    
+
     Returns:
         tuple[Path, Path]: a tuple containing
             - the path to the temporary directory
             - the path to the blender executable in the temporary directory
-    """    
+    """
     # ============================================================
     # Clone the blender installation to a temporary directory
     # ============================================================
@@ -207,7 +219,7 @@ def _call_subprocess(
         generator_filepath.as_posix(),
         "--",
         "instance_id=" + instance_id,
-        "config=" + config.as_json(),
+        "config=" + config.serialize(),
     ]
 
     result = subprocess.run(
@@ -223,64 +235,66 @@ def main() -> None:
     """Main function"""
 
     parser = argparse.ArgumentParser(description="Simple test runner")
+    
+    parser.add_argument(
+        "-cf", "--config-file", action="store_true", help="Show help for the config file"
+    )
+
+    parser.add_argument(
+        "-be", "--blender-exe", help="Path to the blender executable"
+    )
+
+    # parser.add_argument(
+    #     "--show-config",
+    #     action="store_true",
+    #     help="Show the current configuration and exit",
+    # )
 
     # Positional argument for the test file or directory
     parser.add_argument(
         "collector_string",
         nargs="?",
         default=".",
-        help=get_bpyconfig_attr_help("collector_string"),
-    )
-
-    parser.add_argument(
-        "-be", "--blender-exe", help=get_bpyconfig_attr_help("blender_exe")
-    )
-
-    parser.add_argument(
-        "-bel",
-        "--blender-exe-id-list",
-        help=(
-            "List of blender executable ids to be used for the test session, "
-            "each specified ID will be used to find the corresponding env variable with the path to the blender executable. "
-            "e.g. 'blender_3_5' will look for the env variable 'BLENDER_3_5' and use its value as the path to the blender executable. "
-            "This is useful for testing multiple versions of blender in the same test session."
-        ),
-    )
-
-    # add no norecursedirs, will be a list for string
-    parser.add_argument(
-        "-nrd",
-        "--norecursedirs",
-        nargs="*",
-        help=get_bpyconfig_attr_help("norecursedirs"),
+        help=SessionConfig.get_attr_help("collector_string"),
     )
 
     parser.add_argument(
         "-s",
         "--nocapture",
         action="store_true",
-        help=get_bpyconfig_attr_help("nocapture"),
+        help=SessionConfig.get_attr_help("nocapture"),
     )
 
     parser.add_argument(
         "-k",
         "--keyword",
-        help=get_bpyconfig_attr_help("keyword"),
+        help=SessionConfig.get_attr_help("keyword"),
+    )
+
+    parser.add_argument(
+        "-bel",
+        "--blender-exe-id-list",
+        help=ConfigFilePackageLevel.get_attr_help("blender_exe_id_list"),
     )
 
     parser.add_argument(
         "-e",
         "--envfile",
-        help="Path to the environment file",
+        help=ConfigFilePackageLevel.get_attr_help("envfile"),
     )
 
     parser.add_argument(
-        "--show-config",
-        action="store_true",
-        help="Show the current configuration and exit",
+        "-nrd",
+        "--norecursedirs",
+        nargs="*",
+        help=ConfigFileBlenderLevel.get_attr_help("norecursedirs"),
     )
 
     args = parser.parse_args()
+    
+    if args.config_file:
+        _print_config_file_help()
+        sys.exit(0)
 
     # ==============================================================
     # Load Environment Variables from .env file if it exists
@@ -322,10 +336,10 @@ def main() -> None:
         bpytest_config.collector_string = args.collector_string
     if args.norecursedirs is not None:
         bpytest_config.norecursedirs = args.norecursedirs
-    if args.show_config:
-        print("Current configuration:")
-        pprint(bpytest_config.__dict__)
-        sys.exit(0)
+    # if args.show_config:
+    #     print("Current configuration:")
+    #     pprint(bpytest_config.__dict__)
+    #     sys.exit(0)
 
     # ==============================================================
     # Get blender executable instances to run the tests
@@ -347,7 +361,7 @@ def main() -> None:
         # Create isolated installation if needed
         # ===========================================================
         _installation_temp_dir: Path | None = None
-        if pyproject_data.get("isolate_installation", True):
+        if pyproject_data.get("isolate_installation", False):
             _installation_temp_dir, blender_exe = (
                 _isolate_blender_installation(blender_exe)
             )

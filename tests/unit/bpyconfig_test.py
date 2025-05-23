@@ -4,47 +4,47 @@ from pathlib import Path
 from bpytest_config import BpyTestConfig
 
 
-def test_as_as_json():
+def test_serialize():
     """Test converting configuration to a dictionary."""
 
-    config = BpyTestConfig()
+    config = BpyTestConfig()    
     config.pythonpath = Path("/path/to/python")
-    config.nocapture = True
     config.link_addons = ["test_module"]
     config.enable_addons = ["test_module"]
     config.norecursedirs = ["dir1", "dir2"]
     config.include = ["test1", "test2"]
     config.collector_string = "test_file_or_directory"
     config.keyword = "test_keyword"
+    config.nocapture = True
 
-    json_string = config.as_json()
+    json_string = config.serialize()
     assert json.loads(json_string) == {
         "pythonpath": "/path/to/python",
-        "nocapture": True,
         "link_addons": ["test_module"],
         "enable_addons": ["test_module"],
         "norecursedirs": ["dir1", "dir2"],
         "include": ["test1", "test2"],
         "collector_string": "test_file_or_directory",
         "keyword": "test_keyword",
+        "nocapture": True,
     }, "JSON string does not match expected dictionary"
     assert json_string == (
         '{"pythonpath": "/path/to/python",'
-        ' "nocapture": true,'
         ' "link_addons": ["test_module"],'
         ' "enable_addons": ["test_module"],'
         ' "norecursedirs": ["dir1", "dir2"],'
         ' "include": ["test1", "test2"],'
         ' "collector_string": "test_file_or_directory",'
-        ' "keyword": "test_keyword"}'
+        ' "keyword": "test_keyword",'
+        ' "nocapture": true}'
     ), "JSON string does not match expected string"
 
 
-def test_load_from_json():
+def test_deserialize():
     """Test loading configuration from a dictionary."""
 
     config = BpyTestConfig()
-    config.load_from_json(
+    config.deserialize(
         (
             '{"pythonpath": "/path/to/python",'
             ' "nocapture": true,'
@@ -62,7 +62,7 @@ def test_load_from_json():
     assert config.include == ["test1", "test2"]
 
 
-def test_serialization_and_load():
+def test_serialization_and_deserialization():
     """Test serialization and loading of configuration."""
 
     config = BpyTestConfig()
@@ -74,10 +74,10 @@ def test_serialization_and_load():
     config.collector_string = "test_file_or_directory"
     config.keyword = "test_keyword"
 
-    json_string = config.as_json() # Serialize to JSON
+    json_string = config.serialize() # Serialize to JSON
 
     new_config = BpyTestConfig()
-    new_config.load_from_json(json_string)
+    new_config.deserialize(json_string)
 
     assert new_config.pythonpath == config.pythonpath
     assert new_config.nocapture == config.nocapture

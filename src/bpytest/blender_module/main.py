@@ -94,7 +94,7 @@ try:
         raise ValueError("No instance_id argument found")
 
     config = BpyTestConfig()
-    config.load_from_json(data_json)
+    config.deserialize(data_json)
     
     if config.link_addons:
         new_addons_to_enable = _link_addons(config.link_addons)
