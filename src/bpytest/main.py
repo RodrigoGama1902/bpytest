@@ -1,7 +1,10 @@
 import argparse
 import os
+import platform
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from pprint import pprint
 from typing import Any
@@ -68,7 +71,7 @@ def _get_blender_exe_list(
             )
             sys.exit(1)
         blender_exe_list[blender_exe_id] = blender_exe
-        
+
     if not blender_exe_list:
         print(
             "No blender executable found. "
@@ -91,7 +94,84 @@ def _load_pyproject_toml(pyproject_path: Path) -> dict[str, Any]:
         ) from exc
 
 
-def _call_subprocess(blender_exe: Path, config: BpyTestConfig, instance_id : str) -> int:
+def _isolate_blender_installation(blender_exe: Path) -> tuple[Path, Path]:
+    """Create a temporary directory to isolate the blender installation
+    Returns the path to the temporary directory and the path to the blender executable
+    """
+    temp_dir = Path(tempfile.mkdtemp())
+    print(f"Isolating blender installation {blender_exe} at {temp_dir} ")
+    shutil.copytree(blender_exe.parent, temp_dir, dirs_exist_ok=True)
+
+    blender_bin_name = (
+        "blender.exe" if platform.system() == "Windows" else "blender"
+    )
+    return temp_dir, temp_dir / blender_bin_name
+
+
+def _install_python_dependencies(
+    blender_exe: Path, python_dependencies: list[str]
+) -> None:
+    """Install python dependencies"""
+
+    # Depending on the blender version, the python executable is located in different folders
+    # e.g:
+    # 3.5: blender_exe.parent\3.5\python\bin\python.exe
+    # 3.6: blender_exe.parent\3.6\python\bin\python.exe
+    # 4.4: blender_exe.parent\4.4\python\bin\python.exe
+    #
+    # Here we are testing different folders in the blender_exe.parent dir
+    # to find the python executable
+    python_bin_path: Path | None = None
+    _python_bin_name = (
+        "python.exe" if platform.system() == "Windows" else "python3"
+    )
+    for folder in blender_exe.parent.iterdir():
+        _python_bin_path = folder / "python" / "bin" / _python_bin_name
+        if _python_bin_path.is_file():
+            python_bin_path = _python_bin_path
+            break
+    if python_bin_path is None:
+        raise RuntimeError(
+            f"Could not find python executable in {blender_exe.parents}. "
+            "Please make sure the blender executable is in the correct format."
+        )
+
+    # Install pip if not already installed
+    try:
+        subprocess.run([python_bin_path, "-m", "pip", "--version"], check=True)
+    except subprocess.CalledProcessError:
+        import ensurepip
+
+        ensurepip.bootstrap()
+        os.environ.pop("PIP_REQ_TRACKER", None)
+
+    environ_copy = dict(os.environ)
+    environ_copy["PYTHONNOUSERSITE"] = "1"
+    environ_copy["PIP_NO_CACHE_DIR"] = "1"
+
+    for dep in python_dependencies:
+        try:
+            print(f"Installing {dep}...")
+            subprocess.run(
+                [
+                    python_bin_path,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--no-cache-dir",
+                    dep,
+                ],
+                check=True,
+                env=environ_copy,
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install {dep}: {e}")
+            raise e
+
+
+def _call_subprocess(
+    blender_exe: Path, config: BpyTestConfig, instance_id: str
+) -> int:
     """Call the subprocess to execute the test session"""
 
     generator_filepath = BLENDER_MODULE_PATH / "main.py"
@@ -239,13 +319,49 @@ def main() -> None:
 
     return_codes = []
     for instance_id, blender_exe in blender_exe_list.items():
-        return_code = _call_subprocess(blender_exe, bpytest_config, instance_id)
+
+        # ===========================================================
+        # Create isolated installation if needed
+        # ===========================================================
+        _installation_temp_dir: Path | None = None
+        if pyproject_data.get("isolate_installation", False):
+            _installation_temp_dir, blender_exe = (
+                _isolate_blender_installation(blender_exe)
+            )
+
+        # ===========================================================
+        # Install python dependencies if needed
+        # ===========================================================
+        python_dependencies = pyproject_data.get("python_dependencies", [])
+        if python_dependencies:
+            _install_python_dependencies(
+                blender_exe=blender_exe,
+                python_dependencies=python_dependencies,
+            )
+
+        # ===========================================================
+        # Execute the test session
+        # ===========================================================
+        return_code = _call_subprocess(
+            blender_exe, bpytest_config, instance_id
+        )
         return_codes.append(return_code)
-        
+
+        # ===========================================================
+        # Clean up isolated installation if needed
+        # ===========================================================
+        if _installation_temp_dir is not None:
+            print(
+                f"Cleaning up isolated installation at {_installation_temp_dir} "
+                f"for blender executable {blender_exe}"
+            )
+            shutil.rmtree(_installation_temp_dir)
+
     if any(code != 0 for code in return_codes):
         sys.exit(1)
-        
+
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

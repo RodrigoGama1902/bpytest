@@ -57,10 +57,23 @@
     which lead to some problems like strange imports like "from bpytest.bpytest.runner import execute"
 - [ ] Add pip distribution
 
+# Code
+
+- [ ] Create a print module in the common/ dir, to be used to print info, warning and error messages from bpytest
+- [ ] Inside the bpytest blender module print() is used for test info, which is not the best way to do it since can be confused with the debug output or 
+not relevant messages. these messages should be printed from a special function so anyone knows that this is important print
+- [ ] Create a class to represent th PyProject.toml file, so its easier to read and write, and document
+
+# python_dependencies
+
+- [ ] If python_dependencies are used, it will be good to create a temp duplicate the blender installation
+so the dependency installation dont break the current installation
+
 # Pytests
 
 - [ ] Test enable_addons parameter
 - [ ] Test link_addons parameter
+- [ ] Add tests for python_dependencies
 
 
 

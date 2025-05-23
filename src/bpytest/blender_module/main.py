@@ -50,8 +50,7 @@ def main(config: BpyTestConfig, instance_id: str) -> int:
         sys.path.append(path)
     
     sys.exit(wrap_session(config, instance_id))
-
-
+    
 try:
     # Get the JSON string from command-line arguments
     instance_id = ""
