@@ -66,7 +66,7 @@ not relevant messages. these messages should be printed from a special function 
 
 # python_dependencies
 
-- [ ] If python_dependencies are used, it will be good to create a temp duplicate the blender installation
+- [x] If python_dependencies are used, it will be good to create a temp duplicate the blender installation
 so the dependency installation dont break the current installation
 
 # Pytests
