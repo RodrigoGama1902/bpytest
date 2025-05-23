@@ -95,9 +95,17 @@ def _load_pyproject_toml(pyproject_path: Path) -> dict[str, Any]:
 
 
 def _isolate_blender_installation(blender_exe: Path) -> tuple[Path, Path]:
-    """Create a temporary directory to isolate the blender installation
-    Returns the path to the temporary directory and the path to the blender executable
-    """
+    """Create a temporary directory to isolate the blender installation and a portable directory
+    This is used to avoid conflicts with the user configuration files and add-ons from the original installation
+    
+    Returns:
+        tuple[Path, Path]: a tuple containing
+            - the path to the temporary directory
+            - the path to the blender executable in the temporary directory
+    """    
+    # ============================================================
+    # Clone the blender installation to a temporary directory
+    # ============================================================
     temp_dir = Path(tempfile.mkdtemp())
     print(f"Isolating blender installation {blender_exe} at {temp_dir} ")
     shutil.copytree(blender_exe.parent, temp_dir, dirs_exist_ok=True)
@@ -105,6 +113,21 @@ def _isolate_blender_installation(blender_exe: Path) -> tuple[Path, Path]:
     blender_bin_name = (
         "blender.exe" if platform.system() == "Windows" else "blender"
     )
+    # ============================================================
+    # Create portable directory
+    # ============================================================
+    # https://docs.blender.org/manual/en/latest/advanced/blender_directory_layout.html
+    #
+    # NOTE: On Blender 4.2 and above, if a 'portable' directory is created,
+    # blender will use it to store the user configuration files, including
+    # Add-ons. On Blender versions below 4.2, this directory is ignored.
+    #
+    # Only supported on Windows and Linux, on MacOS, it works another way
+    # but will not be implemented for now.
+
+    portable_dir = temp_dir / "portable"
+    portable_dir.mkdir(parents=True, exist_ok=True)
+
     return temp_dir, temp_dir / blender_bin_name
 
 
