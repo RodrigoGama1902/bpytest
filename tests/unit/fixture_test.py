@@ -1,3 +1,4 @@
+from bpyprint import decode_bpyprint
 from conftest import (
     BPY_TEST_FILES,
     assert_execute_all_tests,
@@ -11,7 +12,7 @@ def _check_yield_fixture_output_by_value_order(
 ):
 
     yield_strings = [
-        string for string in stdout if string.startswith("[yield]")
+        decode_bpyprint(string) for string in stdout if string.startswith("[yield]")
     ]
 
     assert yield_strings == expected
@@ -21,7 +22,7 @@ def _check_yield_fixture_output_by_count(
     stdout: list[str], value: str, count: int
 ):
 
-    yield_strings = [string for string in stdout if string == value]
+    yield_strings = [decode_bpyprint(string) for string in stdout if string == value]
     assert len(yield_strings) == count
 
 

@@ -1,6 +1,8 @@
 import os
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+
+from bpyprint import bpyprint
 
 if TYPE_CHECKING:
     from .entity import TestUnit
@@ -32,19 +34,20 @@ def print_header(text: str, color: BColors = BColors.WHITE, bold: bool = True):
     except OSError:
         # Return a default size if getting terminal size fails
         size = os.terminal_size((80, 24))  # Default to 80x24 characters
-    print(
-        color.value
+    bpyprint(
+        str(color.value
         + (BColors.BOLD.value if bold else "")
         + "{s:{c}^{n}}".format(s=" " + text + " ", n=size.columns, c="=")
-        + BColors.ENDC.value
+        + BColors.ENDC.value)
     )
 
 
+# FIXME: TestUnit should not be used here
 def print_failed(test_list: list["TestUnit"]):
 
     for test in test_list:
         if not test.success:
-            print(
+            bpyprint(
                 "----------------------------------------------------------------------"
             )
             test.print_log()
@@ -56,14 +59,10 @@ def print_selected_functions(
     total_selected_tests: int,
 ):
 
-    print(
+    bpyprint(
         (
             f"{BColors.BRIGHT.value}collected {str(total_collected_tests)} items / "
             f"{str(total_deselected_tests)} deselected / "
             f"{str(total_selected_tests)} selected \n {BColors.ENDC.value}"
         )
     )
-    
-def bpyprint(string : Any):
-    """Prints a string to the console with a specific color and formatting."""
-    print(string)

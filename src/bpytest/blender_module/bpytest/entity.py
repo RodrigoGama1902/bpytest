@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from .print_helper import BColors
+from .print_helper import BColors, bpyprint
 
 
 class CollectorString:
@@ -57,7 +57,7 @@ class TestUnit:
 
     def print_log(self):
         for line in self.result_lines:
-            print(line)
+            bpyprint(line)
 
     def __repr__(self) -> str:
 

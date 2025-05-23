@@ -1,10 +1,8 @@
 import importlib.util
-import os
 import sys
 import traceback
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import bpy
 from bpytest_config import BpyTestConfig
@@ -12,21 +10,7 @@ from bpytest_config import BpyTestConfig
 from .entity import SessionInfo, TestUnit
 from .exception import InvalidFixtureName
 from .fixtures import execute_finalize_request, inspect_func_for_fixtures
-
-
-class BlockStandardOutput:
-    """Context manager to block the standard output"""
-
-    def __enter__(self):
-        self._stdout = (  # pylint: disable=attribute-defined-outside-init
-            sys.__stdout__
-        )
-        sys.stdout = open(os.devnull, "w", encoding="utf-8")
-        return self
-
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> Any:
-        sys.stdout.close()
-        sys.stdout = self._stdout
+from .print_helper import bpyprint
 
 
 @dataclass
@@ -70,7 +54,7 @@ def execute(
             try:
                 result = obj(*args_to_pass)
             except TypeError as e:
-                print(str(e))
+                bpyprint(str(e))
                 raise InvalidFixtureName(function_name) from e
 
             # Execute fixtures teardown before after the test
@@ -122,14 +106,7 @@ class TestRunner:
 
     def execute(self) -> bool:
         """Executes the test and returns the result"""
-
-        if not self._nocapture:
-            with BlockStandardOutput():
-                result = self._execute()
-        else:
-            result = self._execute()
-
-        return result
+        return self._execute()
 
     def _restore_blender_session(self):
         """Restores the blender session to the default state"""

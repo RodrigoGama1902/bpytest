@@ -12,6 +12,7 @@ from typing import Any
 import toml
 from dotenv import load_dotenv
 
+from .common.bpyprint import decode_bpyprint, is_bpyprint  # type: ignore[import]
 from .common.bpytest_config import (  # type: ignore[import]
     BpyTestConfig,
     ConfigFileBlenderLevel,
@@ -207,7 +208,7 @@ def _install_python_dependencies(
 def _call_subprocess(
     blender_exe: Path, config: BpyTestConfig, instance_id: str
 ) -> int:
-    """Call the subprocess to execute the test session"""
+    """Call the subprocess to execute the test session, streaming its output."""
 
     generator_filepath = BLENDER_MODULE_PATH / "main.py"
 
@@ -218,18 +219,29 @@ def _call_subprocess(
         "--python",
         generator_filepath.as_posix(),
         "--",
-        "instance_id=" + instance_id,
-        "config=" + config.serialize(),
+        f"instance_id={instance_id}",
+        f"config={config.serialize()}",
     ]
 
-    result = subprocess.run(
+    # Launch Blender, merging stderr into stdout, text mode for easy printing
+    process = subprocess.Popen(
         cmd,
-        check=False,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
     )
 
-    return result.returncode
+    # Print each line as it arrives
+    assert process.stdout is not None
+    for line in process.stdout:
+        if config.nocapture:
+            print(decode_bpyprint(line), end="")
+        else:
+            if is_bpyprint(line):
+                print(decode_bpyprint(line), end="")
 
+    # Wait for Blender to exit, then return its code
+    return process.wait()
 
 def main() -> None:
     """Main function"""
