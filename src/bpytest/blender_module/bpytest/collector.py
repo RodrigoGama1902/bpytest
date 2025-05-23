@@ -2,7 +2,7 @@ import fnmatch
 from pathlib import Path
 
 from .entity import CollectorString, TestFile
-from .print_helper import print_selected_functions
+from .print_helper import bpyprint, print_selected_functions
 
 IGNORE_DIRS: list[str] = [
     "__pycache__",
@@ -76,7 +76,7 @@ class Collector:
             test_file.select_by_collector_string(self._collector_string)
 
         if keyword:
-            print(f"Selecting test units by keyword: {keyword}")
+            bpyprint(f"Selecting test units by keyword: {keyword}")
             for test_file in self.test_files:
                 test_file.select_by_keyword(keyword)
 

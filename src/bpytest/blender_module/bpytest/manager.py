@@ -5,9 +5,9 @@ from pathlib import Path
 from bpytest_config import BpyTestConfig
 
 from .collector import Collector, collect_conftest_files
-from .entity import BColors, CollectorString, SessionInfo, TestUnit
+from .entity import CollectorString, SessionInfo, TestUnit
 from .fixtures import Scope, fixture_manager
-from .print_helper import print_failed, print_header
+from .print_helper import BColors, bpyprint, print_failed, print_header
 from .runner import TestRunner
 from .types import ExitCode
 
@@ -66,7 +66,7 @@ class TestManager:
 
         for test in self._finished_tests_list:
             if not test.success:
-                print(test)
+                bpyprint(test)
 
         print_color = BColors.FAIL if self._failed else BColors.OKGREEN
         center_text = f"Failed: {self._failed} Success: {self._success} in {self._total_time:.2f} seconds"
@@ -129,7 +129,7 @@ class TestManager:
                 result = test_process.execute()
                 test_unit.success = result
 
-                print(test_unit)
+                bpyprint(test_unit)
                 self._finished_tests_list.append(test_unit)
 
             self._finalize_module_fixtures(test_file.filepath)

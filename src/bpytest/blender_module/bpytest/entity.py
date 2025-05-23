@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
+from .print_helper import BColors
+
 
 class CollectorString:
 
@@ -31,21 +33,6 @@ class CollectorString:
 class SessionInfo:
 
     id: int
-class BColors(Enum):
-    """Enum that represents the colors for the terminal"""
-
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKCYAN = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-    BRIGHT = "\033[1m"
-    WHITE = "\033[97m"
-
 
 class TestUnit:
 

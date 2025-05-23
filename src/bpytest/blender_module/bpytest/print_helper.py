@@ -1,6 +1,23 @@
 import os
+from enum import Enum
+from typing import TYPE_CHECKING, Any
 
-from .entity import BColors, TestUnit
+if TYPE_CHECKING:
+    from .entity import TestUnit
+class BColors(Enum):
+    """Enum that represents the colors for the terminal"""
+
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    BRIGHT = "\033[1m"
+    WHITE = "\033[97m"
 
 
 def print_header(text: str, color: BColors = BColors.WHITE, bold: bool = True):
@@ -23,7 +40,7 @@ def print_header(text: str, color: BColors = BColors.WHITE, bold: bool = True):
     )
 
 
-def print_failed(test_list: list[TestUnit]):
+def print_failed(test_list: list["TestUnit"]):
 
     for test in test_list:
         if not test.success:
@@ -46,3 +63,7 @@ def print_selected_functions(
             f"{str(total_selected_tests)} selected \n {BColors.ENDC.value}"
         )
     )
+    
+def bpyprint(string : Any):
+    """Prints a string to the console with a specific color and formatting."""
+    print(string)
