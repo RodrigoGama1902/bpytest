@@ -1,7 +1,10 @@
 """This module is the entry point for the session blender subprocess."""
+import os
 import sys
 import traceback
 from pathlib import Path
+
+import bpy
 
 # ===================================================================================
 # Check to make sure that bpytest and bpytest_config modules are not already imported
@@ -50,10 +53,33 @@ def main(config: BpyTestConfig, instance_id: str) -> int:
         sys.path.append(path)
     
     sys.exit(wrap_session(config, instance_id))
+    
+def _link_addons(link_addons: list[str]) -> list[str]:
+    """Link the specified addons to the user addons directory
+    
+    Returns:
+        list[str]: List of addons to be enabled
+    """
+    blender_data = Path(bpy.utils.resource_path("USER"))
+    addons_path = blender_data / "scripts" / "addons"
+    if not addons_path.exists():
+        addons_path.mkdir(parents=True, exist_ok=True)
 
+    # link directories to here
+    addons_to_enable = []
+    for addon in link_addons:
+        addon_path = Path(addon).absolute().resolve()
+        if not addon_path.exists():
+            print(f"Failed to link addon {addon_path}, it does not exist")
+            continue
 
+        addon_link = addons_path / addon_path.name
+        if not addon_link.exists():
+            os.symlink(addon_path, addon_link, target_is_directory=True)        
+        addons_to_enable.append(addon_path.name)
+        
+    return addons_to_enable
 try:
-    # Get the JSON string from command-line arguments
     instance_id = ""
     data_json: str = ""
     for arg in sys.argv:
@@ -69,6 +95,12 @@ try:
 
     config = BpyTestConfig()
     config.load_from_json(data_json)
+    
+    if config.link_addons:
+        new_addons_to_enable = _link_addons(config.link_addons)
+        # Add the linked addons to the enable_addons list
+        config.enable_addons = config.enable_addons + new_addons_to_enable
+        print(f"Linked addons added to enable list: {new_addons_to_enable}")
 
     main(config, instance_id)
 except Exception as e:

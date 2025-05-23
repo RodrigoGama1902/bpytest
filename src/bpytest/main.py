@@ -324,7 +324,7 @@ def main() -> None:
         # Create isolated installation if needed
         # ===========================================================
         _installation_temp_dir: Path | None = None
-        if pyproject_data.get("isolate_installation", False):
+        if pyproject_data.get("isolate_installation", True):
             _installation_temp_dir, blender_exe = (
                 _isolate_blender_installation(blender_exe)
             )
