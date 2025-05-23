@@ -65,7 +65,8 @@ using composition in the main BpyTestConfig class, and creating each instance of
     passing the data to the BpyTestConfig
 - [ ] Currently its not clear if the test failed because of the test it self, or because some not handled exception or
 blender crash. Find a way to resolve this.
-- [ ] rename blender_exe_id_list > blender_exe_env_list. make sure the cli arg and the class attr will be updated
+- [ ] rename blender_exe_id_list > blender_exe_env_list. make sure the cli arg and the class attr will be updated and isntead of combining strings to get the env variable
+the user should specify the full env variable name
 - [ ] Create a print module in the common/ dir, to be used to print info, warning and error messages from bpytest
 - [ ] Inside the bpytest blender module print() is used for test info, which is not the best way to do it since can be confused with the debug output or 
 not relevant messages. these messages should be printed from a special function so anyone knows that this is important print
