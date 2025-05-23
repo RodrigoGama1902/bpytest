@@ -59,6 +59,10 @@
 
 # Code
 
+- [ ] Currently, the config module is separated in a understandable way, but in the main.py of the package, the data
+from the config file is not relating to any of the ConfigFile classes, find I way to relate the data to the classes, maybe
+using composition in the main BpyTestConfig class, and creating each instance of each config class than 
+    passing the data to the BpyTestConfig
 - [ ] Currently its not clear if the test failed because of the test it self, or because some not handled exception or
 blender crash. Find a way to resolve this.
 - [ ] rename blender_exe_id_list > blender_exe_env_list. make sure the cli arg and the class attr will be updated
