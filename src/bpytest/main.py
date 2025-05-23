@@ -71,7 +71,7 @@ def _get_blender_exe_list(
             )
             sys.exit(1)
         blender_exe_list[blender_exe_id] = blender_exe
-
+        
     if not blender_exe_list:
         print(
             "No blender executable found. "
